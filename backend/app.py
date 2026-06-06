@@ -32,10 +32,15 @@ def create_app() -> Flask:
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # ── CORS ──────────────────────────────────────────────────────────────────
-    # Allow all origins in dev; in production allow your Vercel domain
-    allowed_origins = os.getenv('ALLOWED_ORIGINS', '*')
-    origins = [o.strip() for o in allowed_origins.split(',')] if ',' in allowed_origins else allowed_origins
-    CORS(app, resources={r"/api/*": {"origins": origins}})
+    # Allow localhost for dev + GitHub Pages domain for production
+    allowed_origins = os.getenv(
+        'ALLOWED_ORIGINS',
+        'http://localhost:3000,http://localhost:5500,'
+        'https://saranyadevimurugavel.github.io'
+    )
+    origins = [o.strip() for o in allowed_origins.split(',')]
+    CORS(app, resources={r"/api/*": {"origins": origins}},
+         supports_credentials=True)
 
     # ── Extensions ────────────────────────────────────────────────────────────
     db.init_app(app)
