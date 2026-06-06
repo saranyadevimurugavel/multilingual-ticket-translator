@@ -9,7 +9,7 @@
 // Automatically uses the Render backend in production, localhost in development
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
-  : 'https://mtt-backend.onrender.com/api';  // ← Replace with your actual Render URL after deploy
+  : 'https://multilingual-ticket-translator.onrender.com/api';
 
 // ── Token storage (localStorage) ─────────────────────────────────────────────
 const getToken  = () => localStorage.getItem('mtt_token');
