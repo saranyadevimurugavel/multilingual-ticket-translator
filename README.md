@@ -6,10 +6,14 @@ AI-powered customer support system that accepts tickets in any language, detects
 
 ## 🚀 Live Demo
 
-- **Frontend**: https://your-project.vercel.app
-- **Backend API**: https://mtt-backend.onrender.com
-
+ https://saranyadevimurugavel.github.io/multilingual-ticket-translator/
 ---
+
+
+
+ADMIN LOGIN:
+Email id : admin@mtt.com
+password : admin@123
 
 ## 🧰 Tech Stack
 
