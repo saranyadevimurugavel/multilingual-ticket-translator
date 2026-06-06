@@ -1,0 +1,343 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glossary</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/components/sidebar.css">
+  <link rel="stylesheet" href="../../assets/css/components/navbar.css">
+  <link rel="stylesheet" href="../../assets/css/components/cards.css">
+  <link rel="stylesheet" href="../../assets/css/components/tables.css">
+  <link rel="stylesheet" href="../../assets/css/components/forms.css">
+  <link rel="stylesheet" href="../../assets/css/components/buttons.css">
+  <link rel="stylesheet" href="../../assets/css/responsive.css">
+
+  <style>
+    .add-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+    @media(max-width:700px){ .add-form { grid-template-columns: 1fr; } }
+
+    .add-form .fgroup { margin: 0; }
+    .add-form label {
+      display: block; font-size: .8rem; font-weight: 700;
+      color: #374151; margin-bottom: 5px;
+    }
+    .add-form input, .add-form select {
+      width: 100%; padding: 9px 12px;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      font-size: .92rem; outline: none; transition: border-color .2s;
+    }
+    .add-form input:focus, .add-form select:focus { border-color: #2563EB; }
+
+    /* search bar */
+    .search-row {
+      display: flex; gap: 10px; margin-bottom: 18px; align-items: center;
+    }
+    .search-row input {
+      flex: 1; padding: 9px 14px; border: 1.5px solid #e2e8f0;
+      border-radius: 8px; font-size: .92rem; outline: none;
+      transition: border-color .2s;
+    }
+    .search-row input:focus { border-color: #2563EB; }
+
+    /* table */
+    .glossary-table { width: 100%; border-collapse: collapse; }
+    .glossary-table th {
+      background: #f8fafc; padding: 10px 14px;
+      text-align: left; font-size: .8rem; font-weight: 700;
+      text-transform: uppercase; color: #64748b;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .glossary-table td {
+      padding: 11px 14px; border-bottom: 1px solid #f1f5f9;
+      font-size: .92rem; vertical-align: middle;
+    }
+    .glossary-table tr:hover td { background: #f8fafc; }
+
+    .lang-chip {
+      background: #eff6ff; color: #2563EB;
+      padding: 2px 10px; border-radius: 50px;
+      font-size: .78rem; font-weight: 700;
+    }
+    .btn-del {
+      background: #fef2f2; color: #dc2626; border: none;
+      padding: 5px 14px; border-radius: 6px;
+      cursor: pointer; font-size: .82rem; font-weight: 600;
+      transition: background .15s;
+    }
+    .btn-del:hover { background: #fee2e2; }
+
+    .empty-row td {
+      text-align: center; color: #94a3b8;
+      padding: 32px; font-style: italic;
+    }
+
+    .count-badge {
+      background: #eff6ff; color: #2563EB;
+      padding: 3px 12px; border-radius: 50px;
+      font-size: .82rem; font-weight: 700;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+
+<body>
+<script src="../../assets/js/app.js"></script>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon">🌐</div>
+      <div class="logo-text"><h3>MTT</h3><p>Ticket Translator</p></div>
+    </div>
+    <ul class="menu">
+      <li class="menu-item"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li class="menu-item"><a href="translation-center.html">🌍 Translation Center</a></li>
+      <li class="menu-item"><a href="history.html">🕒 History</a></li>
+      <li class="menu-item"><a href="batch.html">📂 Batch Processing</a></li>
+      <li class="menu-item active"><a href="glossary.html">📖 Glossary</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="top-navbar">
+      <button class="hamburger">☰</button>
+      <div class="app-title">📖 Glossary Management</div>
+    </header>
+
+    <section class="content-wrapper">
+
+      <!-- Add Term form -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">Add New Term</div>
+
+        <div class="add-form">
+          <div class="fgroup">
+            <label>Term</label>
+            <input type="text" id="g-term" placeholder="e.g. VPN">
+          </div>
+          <div class="fgroup">
+            <label>Translation</label>
+            <input type="text" id="g-translation" placeholder="e.g. Réseau Privé Virtuel">
+          </div>
+          <div class="fgroup">
+            <label>Language</label>
+            <select id="g-language">
+              <option value="">Select language</option>
+              <option value="ta">Tamil</option>
+              <option value="hi">Hindi</option>
+              <option value="ml">Malayalam</option>
+              <option value="te">Telugu</option>
+              <option value="kn">Kannada</option>
+              <option value="bn">Bengali</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="es">Spanish</option>
+              <option value="ar">Arabic</option>
+              <option value="ja">Japanese</option>
+              <option value="ko">Korean</option>
+              <option value="ru">Russian</option>
+              <option value="pt">Portuguese</option>
+            </select>
+          </div>
+          <div class="fgroup">
+            <label>&nbsp;</label>
+            <button class="btn btn-primary" onclick="addTerm()" id="add-btn">
+              + Add Term
+            </button>
+          </div>
+        </div>
+
+        <div id="add-msg" style="font-size:.88rem; margin-top:4px;"></div>
+      </div>
+
+      <!-- Terms table -->
+      <div class="card">
+        <div class="card-title" style="display:flex; align-items:center;">
+          Glossary Terms
+          <span class="count-badge" id="term-count">0</span>
+        </div>
+
+        <!-- Search -->
+        <div class="search-row">
+          <input type="text" id="g-search"
+                 placeholder="🔍 Search terms or translations…"
+                 oninput="filterTable(this.value)">
+          <button class="btn btn-primary" onclick="loadTerms()"
+                  style="white-space:nowrap;">↻ Refresh</button>
+        </div>
+
+        <div class="table-container">
+          <table class="glossary-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Term</th>
+                <th>Translation</th>
+                <th>Language</th>
+                <th>Added On</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="glossary-tbody">
+              <tr class="empty-row">
+                <td colspan="6">Loading terms…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+
+<script>
+  let allTerms = [];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!getToken()) { window.location.href = 'login.html'; return; }
+    loadTerms();
+
+    // Enter key on inputs
+    ['g-term','g-translation'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') addTerm();
+      });
+    });
+  });
+
+  // ── Load all terms ──────────────────────────────────────────────────────────
+  async function loadTerms() {
+    try {
+      const data = await apiCall('/glossary');
+      allTerms = data.terms || [];
+      renderTable(allTerms);
+      document.getElementById('term-count').textContent = allTerms.length;
+    } catch (err) {
+      document.getElementById('glossary-tbody').innerHTML =
+        `<tr class="empty-row"><td colspan="6">Failed to load: ${err.message}</td></tr>`;
+    }
+  }
+
+  // ── Render table ────────────────────────────────────────────────────────────
+  function renderTable(terms) {
+    const tbody = document.getElementById('glossary-tbody');
+    if (!terms.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No terms yet. Add your first term above.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = terms.map((t, i) => `
+      <tr id="row-${t.id}">
+        <td style="color:#94a3b8;">${i + 1}</td>
+        <td style="font-weight:600;">${escHtml(t.term)}</td>
+        <td>${escHtml(t.translation)}</td>
+        <td>
+          ${t.language
+            ? `<span class="lang-chip">${t.language.toUpperCase()}</span>`
+            : '<span style="color:#94a3b8;">—</span>'}
+        </td>
+        <td style="color:#64748b; font-size:.85rem;">${formatDate(t.created_at)}</td>
+        <td>
+          <button class="btn-del" onclick="deleteTerm(${t.id})">🗑 Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // ── Search / filter ─────────────────────────────────────────────────────────
+  function filterTable(query) {
+    const q = query.toLowerCase();
+    const filtered = allTerms.filter(t =>
+      t.term.toLowerCase().includes(q) ||
+      t.translation.toLowerCase().includes(q) ||
+      (t.language || '').toLowerCase().includes(q)
+    );
+    renderTable(filtered);
+    document.getElementById('term-count').textContent = filtered.length;
+  }
+
+  // ── Add term ────────────────────────────────────────────────────────────────
+  async function addTerm() {
+    const term        = document.getElementById('g-term').value.trim();
+    const translation = document.getElementById('g-translation').value.trim();
+    const language    = document.getElementById('g-language').value;
+    const btn         = document.getElementById('add-btn');
+    const msg         = document.getElementById('add-msg');
+
+    msg.textContent = '';
+
+    if (!term || !translation) {
+      msg.textContent = '⚠ Term and Translation are required.';
+      msg.style.color = '#dc2626';
+      return;
+    }
+
+    btn.textContent = 'Adding…'; btn.disabled = true;
+
+    try {
+      await apiCall('/glossary/add', {
+        method: 'POST',
+        body:   JSON.stringify({ term, translation, language }),
+      });
+
+      // Clear inputs
+      document.getElementById('g-term').value        = '';
+      document.getElementById('g-translation').value = '';
+      document.getElementById('g-language').value    = '';
+
+      msg.textContent = `✅ "${term}" added successfully.`;
+      msg.style.color = '#16a34a';
+
+      await loadTerms();
+
+    } catch (err) {
+      msg.textContent = '❌ ' + err.message;
+      msg.style.color = '#dc2626';
+    } finally {
+      btn.textContent = '+ Add Term'; btn.disabled = false;
+    }
+  }
+
+  // ── Delete term ─────────────────────────────────────────────────────────────
+  async function deleteTerm(id) {
+    if (!confirm('Delete this term?')) return;
+    try {
+      await apiCall(`/glossary/${id}`, { method: 'DELETE' });
+      document.getElementById(`row-${id}`)?.remove();
+      allTerms = allTerms.filter(t => t.id !== id);
+      document.getElementById('term-count').textContent = allTerms.length;
+      if (!allTerms.length) renderTable([]);
+      showAlert('Term deleted.', 'success');
+    } catch (err) {
+      showAlert('Delete failed: ' + err.message, 'error');
+    }
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function formatDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('en-GB', {
+      day:'2-digit', month:'short', year:'numeric'
+    });
+  }
+</script>
+
+</body>
+</html>

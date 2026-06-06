@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Login</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/components/forms.css">
+  <link rel="stylesheet" href="../../assets/css/components/buttons.css">
+
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #F0F4FF;
+    }
+
+    .auth-card {
+      background: #fff;
+      width: 420px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(37,99,235,0.12);
+      overflow: hidden;
+    }
+
+    /* ── Tab switcher ──────────────────────────────── */
+    .tab-bar {
+      display: flex;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      background: #f1f5f9;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #64748b;
+      transition: .2s;
+    }
+
+    .tab-btn.active {
+      background: #2563EB;
+      color: #fff;
+    }
+
+    /* ── Form body ─────────────────────────────────── */
+    .form-body {
+      padding: 32px;
+    }
+
+    .form-body h2 {
+      margin-bottom: 6px;
+      font-size: 1.4rem;
+      color: #0f172a;
+    }
+
+    .form-body p.subtitle {
+      font-size: .88rem;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: .95rem;
+      transition: border-color .2s, box-shadow .2s;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: #2563EB;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+    }
+
+    .form-control.error {
+      border-color: #ef4444;
+    }
+
+    /* ── Password strength bar ─────────────────────── */
+    .strength-bar {
+      height: 4px;
+      border-radius: 4px;
+      margin-top: 6px;
+      background: #e2e8f0;
+      transition: .3s;
+    }
+
+    .strength-bar .fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width .3s, background .3s;
+      width: 0%;
+    }
+
+    .strength-text {
+      font-size: .75rem;
+      margin-top: 3px;
+      color: #64748b;
+    }
+
+    /* ── Submit button ─────────────────────────────── */
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: #2563EB;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background .2s;
+    }
+
+    .btn-submit:hover   { background: #1d4ed8; }
+    .btn-submit:disabled { background: #93c5fd; cursor: not-allowed; }
+
+    /* ── Error / success messages ──────────────────── */
+    .msg {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: .88rem;
+      font-weight: 600;
+      margin-top: 14px;
+      display: none;
+    }
+
+    .msg.error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; display: block; }
+    .msg.success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; display: block; }
+
+    /* ── Hidden panel ──────────────────────────────── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+  </style>
+</head>
+
+<body>
+  <!-- Load shared helpers BEFORE inline scripts -->
+  <script src="../../assets/js/app.js"></script>
+
+  <div class="auth-card">
+
+    <!-- Tab switcher -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-login"    onclick="switchTab('login')">Login</button>
+      <button class="tab-btn"        id="tab-register" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <!-- ── LOGIN PANEL ───────────────────────────── -->
+    <div class="form-body panel active" id="panel-login">
+
+      <h2>Welcome Back</h2>
+      <p class="subtitle">Login to your client account</p>
+
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-control" type="email" id="login-email" placeholder="you@example.com">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-control" type="password" id="login-password" placeholder="Enter your password">
+      </div>
+
+      <button class="btn-submit" id="login-btn" onclick="handleLogin()">Login</button>
+      <div class="msg" id="login-msg"></div>
+
+    </div>
+
+    <!-- ── REGISTER PANEL ────────────────────────── -->
+    <div class="form-body panel" id="panel-register">
+
+      <h2>Create Account</h2>
+      <p class="subtitle">Register a new client account</p>
+
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-control" type="text" id="reg-name" placeholder="Your full name">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-control" type="email" id="reg-email" placeholder="you@example.com">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-control" type="password" id="reg-password"
+               placeholder="Minimum 6 characters" oninput="checkStrength(this.value)">
+        <div class="strength-bar"><div class="fill" id="strength-fill"></div></div>
+        <div class="strength-text" id="strength-text"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input class="form-control" type="password" id="reg-confirm" placeholder="Re-enter your password">
+      </div>
+
+      <button class="btn-submit" id="register-btn" onclick="handleRegister()">Create Account</button>
+      <div class="msg" id="register-msg"></div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // ── Tab switcher ──────────────────────────────────────────────────────────
+    function switchTab(tab) {
+      document.getElementById('panel-login').classList.toggle('active',    tab === 'login');
+      document.getElementById('panel-register').classList.toggle('active', tab === 'register');
+      document.getElementById('tab-login').classList.toggle('active',      tab === 'login');
+      document.getElementById('tab-register').classList.toggle('active',   tab === 'register');
+      clearMsg('login-msg');
+      clearMsg('register-msg');
+    }
+
+    function showMsg(id, text, type) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = `msg ${type}`;
+    }
+
+    function clearMsg(id) {
+      const el = document.getElementById(id);
+      el.textContent = '';
+      el.className = 'msg';
+    }
+
+    // ── Password strength checker ─────────────────────────────────────────────
+    function checkStrength(val) {
+      const fill = document.getElementById('strength-fill');
+      const text = document.getElementById('strength-text');
+      let score = 0;
+      if (val.length >= 6)                        score++;
+      if (val.length >= 10)                       score++;
+      if (/[A-Z]/.test(val))                      score++;
+      if (/[0-9]/.test(val))                      score++;
+      if (/[^A-Za-z0-9]/.test(val))              score++;
+
+      const levels = [
+        { w: '20%',  bg: '#ef4444', label: 'Very weak'  },
+        { w: '40%',  bg: '#f97316', label: 'Weak'       },
+        { w: '60%',  bg: '#eab308', label: 'Fair'       },
+        { w: '80%',  bg: '#22c55e', label: 'Strong'     },
+        { w: '100%', bg: '#16a34a', label: 'Very strong' },
+      ];
+      const l = levels[Math.max(0, score - 1)] || levels[0];
+      fill.style.width      = val ? l.w  : '0%';
+      fill.style.background = l.bg;
+      text.textContent      = val ? l.label : '';
+    }
+
+    // ── LOGIN ─────────────────────────────────────────────────────────────────
+    async function handleLogin() {
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn      = document.getElementById('login-btn');
+
+      clearMsg('login-msg');
+
+      if (!email || !password) {
+        showMsg('login-msg', 'Please enter your email and password.', 'error');
+        return;
+      }
+
+      btn.textContent = 'Logging in…';
+      btn.disabled    = true;
+
+      try {
+        const data = await apiCall('/auth/login', {
+          method: 'POST',
+          body:   JSON.stringify({ email, password }),
+        });
+
+        // Block admin credentials on client portal
+        if (data.user.role !== 'client') {
+          clearAuth();
+          showMsg('login-msg', 'Incorrect email or password.', 'error');
+          return;
+        }
+
+        saveAuth(data.token, data.user);
+        showMsg('login-msg', `Welcome back, ${data.user.name || data.user.email}!`, 'success');
+
+        setTimeout(() => {
+          window.location.href = 'submit-ticket.html';
+        }, 900);
+
+      } catch (err) {
+        showMsg('login-msg', 'Incorrect email or password.', 'error');
+      } finally {
+        btn.textContent = 'Login';
+        btn.disabled    = false;
+      }
+    }
+
+    // ── REGISTER ──────────────────────────────────────────────────────────────
+    async function handleRegister() {
+      const name     = document.getElementById('reg-name').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirm  = document.getElementById('reg-confirm').value;
+      const btn      = document.getElementById('register-btn');
+
+      clearMsg('register-msg');
+
+      // ── Validation ────────────────────────────────────────────────────────
+      if (!name) {
+        showMsg('register-msg', 'Please enter your full name.', 'error');
+        return;
+      }
+
+      if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+        showMsg('register-msg', 'Please enter a valid email address.', 'error');
+        return;
+      }
+
+      if (password.length < 6) {
+        showMsg('register-msg', 'Password must be at least 6 characters.', 'error');
+        return;
+      }
+
+      if (password !== confirm) {
+        showMsg('register-msg', 'Passwords do not match.', 'error');
+        document.getElementById('reg-confirm').classList.add('error');
+        return;
+      }
+
+      document.getElementById('reg-confirm').classList.remove('error');
+
+      btn.textContent = 'Creating account…';
+      btn.disabled    = true;
+
+      try {
+        const data = await apiCall('/auth/register', {
+          method: 'POST',
+          body:   JSON.stringify({ name, email, password, role: 'client' }),
+        });
+
+        showMsg('register-msg',
+          `Account created! Welcome, ${data.user.name}. Redirecting to login…`,
+          'success'
+        );
+
+        // Auto-fill login form and switch to login tab
+        setTimeout(() => {
+          document.getElementById('login-email').value    = email;
+          document.getElementById('login-password').value = password;
+          switchTab('login');
+          showMsg('login-msg', 'Account created! You can now log in.', 'success');
+        }, 1200);
+
+      } catch (err) {
+        const msg = err.message.includes('409') || err.message.toLowerCase().includes('already')
+          ? 'This email is already registered. Please log in instead.'
+          : (err.message || 'Registration failed. Please try again.');
+        showMsg('register-msg', msg, 'error');
+      } finally {
+        btn.textContent = 'Create Account';
+        btn.disabled    = false;
+      }
+    }
+
+    // ── Enter key support ────────────────────────────────────────────────────
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const activePanel = document.querySelector('.panel.active').id;
+      if (activePanel === 'panel-login')    handleLogin();
+      if (activePanel === 'panel-register') handleRegister();
+    });
+  </script>
+
+</body>
+</html>

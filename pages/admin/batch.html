@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch Processing</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/components/sidebar.css">
+  <link rel="stylesheet" href="../../assets/css/components/navbar.css">
+  <link rel="stylesheet" href="../../assets/css/components/cards.css">
+  <link rel="stylesheet" href="../../assets/css/components/tables.css">
+  <link rel="stylesheet" href="../../assets/css/components/forms.css">
+  <link rel="stylesheet" href="../../assets/css/components/buttons.css">
+  <link rel="stylesheet" href="../../assets/css/responsive.css">
+
+  <style>
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .sum-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .sum-card .num  { font-size: 2.2rem; font-weight: 800; margin: 6px 0 2px; }
+    .sum-card .lbl  { font-size: .82rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+    .sum-card.total { border-top: 4px solid #2563EB; }
+    .sum-card.ok    { border-top: 4px solid #22c55e; }
+    .sum-card.skip  { border-top: 4px solid #f59e0b; }
+
+    .ticket-row { cursor: pointer; transition: background .15s; }
+    .ticket-row:hover { background: #f0f7ff; }
+
+    .lang-badge {
+      background: #eff6ff; color: #2563EB;
+      padding: 2px 10px; border-radius: 50px;
+      font-size: .78rem; font-weight: 700;
+    }
+    .pri-badge {
+      padding: 2px 10px; border-radius: 50px;
+      font-size: .78rem; font-weight: 700; color: #fff;
+    }
+    .pri-Critical { background: #7c3aed; }
+    .pri-High     { background: #dc2626; }
+    .pri-Medium   { background: #d97706; }
+    .pri-Low      { background: #16a34a; }
+
+    /* Reply modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.45); z-index: 1000;
+      justify-content: center; align-items: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 16px; width: 560px;
+      max-width: 95vw; padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .modal-box h3 { margin-bottom: 6px; }
+    .modal-box .sub { color: #64748b; font-size: .87rem; margin-bottom: 20px; }
+    .info-pair { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+    .info-item { flex: 1; min-width: 140px; }
+    .info-item label { display: block; font-size: .78rem; font-weight: 700;
+                       text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
+    .info-item p { font-size: .9rem; color: #0f172a; }
+    .orig-box, .trans-box {
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 12px; margin-bottom: 14px;
+      font-size: .9rem; line-height: 1.6; max-height: 100px; overflow-y: auto;
+    }
+    .reply-area {
+      width: 100%; padding: 10px 13px; border: 1.5px solid #e2e8f0;
+      border-radius: 8px; font-size: .93rem; resize: vertical;
+      min-height: 90px; outline: none; font-family: inherit;
+      transition: border-color .2s;
+    }
+    .reply-area:focus { border-color: #2563EB; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .btn-send {
+      flex: 1; padding: 11px; background: #2563EB; color: #fff;
+      border: none; border-radius: 8px; font-weight: 700;
+      cursor: pointer; font-size: .95rem; transition: .2s;
+    }
+    .btn-send:hover { background: #1d4ed8; }
+    .btn-cancel {
+      padding: 11px 20px; background: #f1f5f9; border: none;
+      border-radius: 8px; font-weight: 600; cursor: pointer;
+      font-size: .95rem;
+    }
+    .reply-result {
+      margin-top: 14px; padding: 12px; border-radius: 8px;
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      display: none;
+    }
+    .reply-result .rl { font-size: .75rem; font-weight: 700;
+                         text-transform: uppercase; color: #64748b; margin-bottom: 3px; }
+    .reply-result .rt { font-size: .92rem; color: #0f172a; line-height: 1.5; }
+  </style>
+</head>
+
+<body>
+<script src="../../assets/js/app.js"></script>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon">🌐</div>
+      <div class="logo-text"><h3>MTT</h3><p>Ticket Translator</p></div>
+    </div>
+    <ul class="menu">
+      <li class="menu-item"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li class="menu-item"><a href="translation-center.html">🌍 Translation Center</a></li>
+      <li class="menu-item"><a href="history.html">🕒 History</a></li>
+      <li class="menu-item active"><a href="batch.html">📂 Batch Processing</a></li>
+      <li class="menu-item"><a href="glossary.html">📖 Glossary</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="top-navbar">
+      <button class="hamburger">☰</button>
+      <div class="app-title">📂 Batch Ticket Processing</div>
+    </header>
+
+    <section class="content-wrapper">
+
+      <!-- Process Folder card -->
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-title">Process Ticket Folder</div>
+        <p style="color:#64748b; font-size:.9rem; margin-bottom:16px;">
+          Scans a folder of mixed-language ticket files (.txt / .json),
+          detects language, translates to English, runs AI analysis, and stores all results.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Folder Path (leave blank to use default sample_tickets/)</label>
+          <input class="form-control" id="folder-path"
+                 placeholder="Leave blank to process sample_tickets/ folder"
+                 value="">
+        </div>
+
+        <p style="font-size:.85rem; color:#64748b; margin-bottom:14px;">
+          💡 <strong>Tip:</strong> Just click <em>Process Folder</em> without entering anything
+          to process the 8 built-in sample tickets (Tamil, Hindi, French, Malayalam, Telugu, German, Spanish, English).
+        </p>
+
+        <button class="btn btn-primary" id="process-btn" onclick="startBatch()">
+          ▶ Process Folder
+        </button>
+
+        <div id="batch-msg" style="margin-top:14px; font-size:.9rem; color:#64748b;"></div>
+      </div>
+
+      <!-- Summary cards (hidden until processed) -->
+      <div class="summary-grid" id="summary-grid" style="display:none;">
+        <div class="sum-card total">
+          <div class="lbl">Total Files</div>
+          <div class="num" id="sum-total">0</div>
+        </div>
+        <div class="sum-card ok">
+          <div class="lbl">Processed</div>
+          <div class="num" id="sum-ok">0</div>
+        </div>
+        <div class="sum-card skip">
+          <div class="lbl">Skipped / Errors</div>
+          <div class="num" id="sum-skip">0</div>
+        </div>
+      </div>
+
+      <!-- Results table -->
+      <div class="card" id="results-card" style="display:none;">
+        <div class="card-title">Processed Tickets — Click a row to send a reply</div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>File</th>
+                <th>Subject</th>
+                <th>Language</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Sentiment</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Errors card -->
+      <div class="card" id="errors-card" style="display:none; margin-top:16px;">
+        <div class="card-title" style="color:#dc2626;">⚠ Errors</div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>File</th><th>Error</th></tr></thead>
+            <tbody id="errors-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<!-- ── REPLY MODAL ─────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="reply-modal">
+  <div class="modal-box">
+    <h3>📨 Send Engineer Reply</h3>
+    <p class="sub">Write your reply in English — it will be automatically translated to the customer's language.</p>
+
+    <div class="info-pair">
+      <div class="info-item">
+        <label>Ticket ID</label>
+        <p id="m-id">—</p>
+      </div>
+      <div class="info-item">
+        <label>Language</label>
+        <p id="m-lang">—</p>
+      </div>
+      <div class="info-item">
+        <label>Category</label>
+        <p id="m-cat">—</p>
+      </div>
+    </div>
+
+    <label class="form-label">Original Message (Customer's Language)</label>
+    <div class="orig-box" id="m-original">—</div>
+
+    <label class="form-label">English Translation</label>
+    <div class="trans-box" id="m-translated">—</div>
+
+    <label class="form-label">Your Reply (in English)</label>
+    <textarea class="reply-area" id="m-reply"
+      placeholder="Type your reply here in English..."></textarea>
+
+    <!-- Translation result appears here after sending -->
+    <div class="reply-result" id="reply-result">
+      <div class="rl">English Reply</div>
+      <div class="rt" id="rr-english">—</div>
+      <br>
+      <div class="rl">Translated Reply (Customer's Language)</div>
+      <div class="rt" id="rr-translated">—</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-send" id="send-btn" onclick="sendReply()">
+        📤 Send & Translate Reply
+      </button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+
+<script>
+  let selectedTicketId = null;
+
+  // ── Process folder ──────────────────────────────────────────────────────────
+  async function startBatch() {
+    const folderPath = document.getElementById('folder-path').value.trim();
+    const btn        = document.getElementById('process-btn');
+    const msg        = document.getElementById('batch-msg');
+
+    btn.textContent = '⏳ Processing…';
+    btn.disabled    = true;
+    msg.textContent = 'Scanning folder and running AI pipeline on each file…';
+    msg.style.color = '#2563EB';
+
+    // Hide previous results
+    document.getElementById('summary-grid').style.display = 'none';
+    document.getElementById('results-card').style.display = 'none';
+    document.getElementById('errors-card').style.display  = 'none';
+
+    try {
+      const body = folderPath ? { folder_path: folderPath } : {};
+      const data = await apiCall('/batch/process-folder', {
+        method: 'POST',
+        body:   JSON.stringify(body),
+      });
+
+      renderSummary(data.summary);
+      renderResults(data.results);
+      if (data.errors.length) renderErrors(data.errors);
+
+      msg.textContent = `✅ Done — ${data.summary.processed} ticket(s) processed.`;
+      msg.style.color = '#16a34a';
+
+    } catch (err) {
+      msg.textContent = `❌ ${err.message}`;
+      msg.style.color = '#dc2626';
+    } finally {
+      btn.textContent = '▶ Process Folder';
+      btn.disabled    = false;
+    }
+  }
+
+  function renderSummary(s) {
+    document.getElementById('sum-total').textContent = s.total;
+    document.getElementById('sum-ok').textContent    = s.processed;
+    document.getElementById('sum-skip').textContent  = s.skipped;
+    document.getElementById('summary-grid').style.display = 'grid';
+  }
+
+  function renderResults(results) {
+    if (!results.length) return;
+    const tbody = document.getElementById('results-tbody');
+    tbody.innerHTML = results.map((r, i) => `
+      <tr class="ticket-row">
+        <td>${r.ticket_id}</td>
+        <td style="font-size:.82rem; color:#64748b;">${r.file}</td>
+        <td>${r.subject}</td>
+        <td><span class="lang-badge">${r.language_name}</span></td>
+        <td>${r.category}</td>
+        <td><span class="pri-badge pri-${r.priority}">${r.priority}</span></td>
+        <td>${r.sentiment}</td>
+        <td>
+          <button class="btn btn-primary"
+            style="padding:5px 14px; font-size:.82rem;"
+            onclick="openModal(${r.ticket_id},'${r.language_name}','${r.category}',
+              ${JSON.stringify(r.original_message || '').replace(/'/g,"&#39;")},
+              ${JSON.stringify(r.translated_message || '').replace(/'/g,"&#39;")})">
+            Reply
+          </button>
+        </td>
+      </tr>
+    `).join('');
+    document.getElementById('results-card').style.display = 'block';
+  }
+
+  function renderErrors(errors) {
+    const tbody = document.getElementById('errors-tbody');
+    tbody.innerHTML = errors.map(e => `
+      <tr>
+        <td>${e.file}</td>
+        <td style="color:#dc2626;">${e.error}</td>
+      </tr>
+    `).join('');
+    document.getElementById('errors-card').style.display = 'block';
+  }
+
+  // ── Reply modal ─────────────────────────────────────────────────────────────
+  function openModal(id, lang, cat, original, translated) {
+    selectedTicketId = id;
+    document.getElementById('m-id').textContent         = `#${id}`;
+    document.getElementById('m-lang').textContent       = lang;
+    document.getElementById('m-cat').textContent        = cat;
+    document.getElementById('m-original').textContent   = original   || '—';
+    document.getElementById('m-translated').textContent = translated || '—';
+    document.getElementById('m-reply').value            = '';
+    document.getElementById('reply-result').style.display = 'none';
+    document.getElementById('reply-modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('reply-modal').classList.remove('open');
+    selectedTicketId = null;
+  }
+
+  async function sendReply() {
+    const reply = document.getElementById('m-reply').value.trim();
+    const btn   = document.getElementById('send-btn');
+
+    if (!reply) {
+      alert('Please type a reply before sending.');
+      return;
+    }
+
+    btn.textContent = '⏳ Translating…';
+    btn.disabled    = true;
+
+    try {
+      const data = await apiCall('/batch/reply', {
+        method: 'POST',
+        body:   JSON.stringify({
+          ticket_id:     selectedTicketId,
+          english_reply: reply,
+        }),
+      });
+
+      const r = data.data;
+      document.getElementById('rr-english').textContent    = r.english_reply;
+      document.getElementById('rr-translated').textContent = r.translated_reply;
+      document.getElementById('reply-result').style.display = 'block';
+
+      btn.textContent = '✅ Reply Sent';
+      showAlert(`Reply translated to ${r.language_name} and saved!`, 'success');
+
+    } catch (err) {
+      alert('Failed: ' + err.message);
+      btn.textContent = '📤 Send & Translate Reply';
+      btn.disabled    = false;
+    }
+  }
+
+  // Close modal on overlay click
+  document.getElementById('reply-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+
+</body>
+</html>

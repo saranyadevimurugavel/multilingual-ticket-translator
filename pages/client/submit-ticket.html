@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit Ticket</title>
+<link rel="stylesheet" href="../../assets/css/style.css">
+<link rel="stylesheet" href="../../assets/css/components/forms.css">
+<link rel="stylesheet" href="../../assets/css/components/cards.css">
+<link rel="stylesheet" href="../../assets/css/components/buttons.css">
+</head>
+
+<body>
+<script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/translation.js"></script>
+
+<div style="max-width:900px; margin:50px auto;">
+
+  <div class="card">
+
+    <h2 style="margin-bottom:20px;">Submit Support Ticket</h2>
+
+    <div class="form-group">
+      <label class="form-label">Subject</label>
+      <input class="form-control" id="ticket-subject" placeholder="Enter subject">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Language</label>
+      <select class="form-control" id="ticket-language">
+
+        <!-- Indian Languages -->
+        <optgroup label="Indian Languages">
+          <option value="English">English</option>
+          <option value="Tamil">Tamil — தமிழ்</option>
+          <option value="Hindi">Hindi — हिन्दी</option>
+          <option value="Malayalam">Malayalam — മലയാളം</option>
+          <option value="Telugu">Telugu — తెలుగు</option>
+          <option value="Kannada">Kannada — ಕನ್ನಡ</option>
+          <option value="Bengali">Bengali — বাংলা</option>
+          <option value="Marathi">Marathi — मराठी</option>
+          <option value="Gujarati">Gujarati — ગુજરાતી</option>
+          <option value="Punjabi">Punjabi — ਪੰਜਾਬੀ</option>
+          <option value="Urdu">Urdu — اردو</option>
+          <option value="Odia">Odia — ଓଡ଼ିଆ</option>
+        </optgroup>
+
+        <!-- International Languages -->
+        <optgroup label="International Languages">
+          <option value="French">French — Français</option>
+          <option value="German">German — Deutsch</option>
+          <option value="Spanish">Spanish — Español</option>
+          <option value="Arabic">Arabic — العربية</option>
+          <option value="Chinese">Chinese — 中文</option>
+          <option value="Japanese">Japanese — 日本語</option>
+          <option value="Korean">Korean — 한국어</option>
+          <option value="Portuguese">Portuguese — Português</option>
+          <option value="Russian">Russian — Русский</option>
+          <option value="Italian">Italian — Italiano</option>
+          <option value="Turkish">Turkish — Türkçe</option>
+        </optgroup>
+
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Message</label>
+      <textarea rows="8" class="form-control" id="ticket-message"
+        placeholder="Type your support message here in any language..."></textarea>
+    </div>
+
+    <button class="btn btn-primary" id="submit-ticket-btn">
+      Submit Ticket
+    </button>
+
+  </div>
+
+</div>
+
+</body>
+</html>

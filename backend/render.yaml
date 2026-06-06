@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: mtt-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///mtt.db
+      - key: JWT_EXPIRY_HOURS
+        value: "24"
+      - key: GEMINI_API_KEY
+        sync: false

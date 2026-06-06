@@ -1,0 +1,75 @@
+.top-navbar{
+
+    height:70px;
+
+    background:white;
+
+    position:sticky;
+    top:0;
+
+    z-index:100;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 24px;
+
+    border-bottom:
+    1px solid var(--border-color);
+}
+
+.app-title{
+    font-size:20px;
+    font-weight:600;
+}
+
+.navbar-right{
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+
+.search-box input{
+
+    width:280px;
+
+    height:42px;
+
+    border:
+    1px solid var(--border-color);
+
+    border-radius:10px;
+
+    padding:0 14px;
+}
+
+.icon-btn{
+
+    width:42px;
+    height:42px;
+
+    border-radius:10px;
+
+    border:
+    1px solid var(--border-color);
+
+    background:white;
+
+    cursor:pointer;
+}
+
+.profile-dropdown{
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.profile-dropdown img{
+
+    width:38px;
+    height:38px;
+
+    border-radius:50%;
+}

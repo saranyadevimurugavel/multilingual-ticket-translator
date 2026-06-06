@@ -1,0 +1,31 @@
+.card{
+
+    background:white;
+
+    border-radius:12px;
+
+    padding:24px;
+
+    border:
+    1px solid var(--border-color);
+
+    box-shadow:var(--shadow);
+}
+
+.card-title{
+
+    font-size:18px;
+
+    font-weight:600;
+
+    margin-bottom:20px;
+}
+
+.stats-card h2{
+    font-size:32px;
+    margin-top:10px;
+}
+
+.stats-card p{
+    color:var(--text-secondary);
+}

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Powered Multilingual Ticket Translator</title>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#F0F4FF; color:#0F172A; min-height:100vh; }
+
+    /* ── NAVBAR ──────────────────────────────────────────── */
+    nav {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:16px 6%; background:#fff;
+      box-shadow:0 2px 10px rgba(0,0,0,0.07); position:sticky; top:0; z-index:100;
+    }
+    .logo { font-size:1.2rem; font-weight:800; color:#2563EB; }
+
+    /* ── HERO LAYOUT ─────────────────────────────────────── */
+    .hero {
+      display:flex; align-items:center; justify-content:center;
+      flex-wrap:wrap; gap:60px;
+      padding:60px 6%; min-height:90vh;
+    }
+
+    /* LEFT — headline */
+    .hero-left { flex:1; min-width:280px; max-width:520px; }
+    .hero-left h1 { font-size:2.8rem; line-height:1.2; margin-bottom:16px; }
+    .hero-left h1 span { color:#2563EB; }
+    .hero-left p  { font-size:1.05rem; color:#64748b; line-height:1.8; margin-bottom:28px; }
+
+    .steps-mini { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:32px; }
+    .step-chip {
+      background:#eff6ff; color:#2563EB; font-size:.82rem;
+      font-weight:700; padding:6px 14px; border-radius:50px;
+    }
+
+    /* RIGHT — auth card */
+    .auth-card {
+      width:400px; background:#fff; border-radius:18px;
+      box-shadow:0 8px 40px rgba(37,99,235,0.13); overflow:hidden;
+      flex-shrink:0;
+    }
+
+    /* ── TAB BAR ─────────────────────────────────────────── */
+    .tab-bar { display:flex; }
+    .tab-btn {
+      flex:1; padding:15px; border:none; background:#f1f5f9;
+      font-size:.95rem; font-weight:700; cursor:pointer;
+      color:#64748b; transition:.2s;
+    }
+    .tab-btn.active { background:#2563EB; color:#fff; }
+
+    /* ── FORM BODY ───────────────────────────────────────── */
+    .form-body { padding:28px; display:none; }
+    .form-body.active { display:block; }
+    .form-body h3 { font-size:1.25rem; margin-bottom:4px; }
+    .form-body .sub { font-size:.85rem; color:#94a3b8; margin-bottom:22px; }
+
+    .fgroup { margin-bottom:16px; }
+    .fgroup label {
+      display:block; font-size:.82rem; font-weight:700;
+      color:#374151; margin-bottom:5px;
+    }
+    .fgroup input {
+      width:100%; padding:10px 13px; border:1.5px solid #e2e8f0;
+      border-radius:8px; font-size:.93rem; outline:none;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .fgroup input:focus {
+      border-color:#2563EB;
+      box-shadow:0 0 0 3px rgba(37,99,235,.13);
+    }
+    .fgroup input.err { border-color:#ef4444; }
+
+    /* strength bar */
+    .sbar { height:4px; background:#e2e8f0; border-radius:4px; margin-top:6px; }
+    .sbar-fill { height:100%; border-radius:4px; width:0%; transition:.3s; }
+    .sbar-label { font-size:.72rem; color:#64748b; margin-top:3px; }
+
+    /* submit btn */
+    .sbtn {
+      width:100%; padding:12px; background:#2563EB; color:#fff;
+      border:none; border-radius:8px; font-size:1rem;
+      font-weight:700; cursor:pointer; margin-top:4px; transition:.2s;
+    }
+    .sbtn:hover    { background:#1d4ed8; }
+    .sbtn:disabled { background:#93c5fd; cursor:not-allowed; }
+
+    /* inline message */
+    .imsg {
+      margin-top:12px; padding:9px 13px; border-radius:8px;
+      font-size:.85rem; font-weight:600; display:none;
+    }
+    .imsg.err { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; display:block; }
+    .imsg.ok  { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; display:block; }
+
+    /* admin link */
+    .admin-link {
+      text-align:center; padding:14px 0 18px;
+      font-size:.84rem; color:#64748b;
+    }
+    .admin-link a {
+      color:#2563EB; font-weight:700; text-decoration:none;
+    }
+    .admin-link a:hover { text-decoration:underline; }
+
+    /* ── FEATURES ────────────────────────────────────────── */
+    .features { padding:70px 6%; text-align:center; }
+    .features h2 { font-size:2rem; margin-bottom:40px; }
+    .feat-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:22px;
+    }
+    .feat-card {
+      background:#fff; padding:26px 22px; border-radius:14px;
+      box-shadow:0 4px 18px rgba(0,0,0,0.07); transition:.3s;
+    }
+    .feat-card:hover { transform:translateY(-4px); }
+    .feat-card h3 { color:#2563EB; margin-bottom:10px; font-size:1rem; }
+    .feat-card p  { color:#64748b; font-size:.9rem; line-height:1.6; }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    footer {
+      text-align:center; padding:22px;
+      background:#0F172A; color:#94a3b8; font-size:.88rem; margin-top:40px;
+    }
+
+    @media(max-width:700px){
+      .hero { padding:40px 5%; gap:36px; }
+      .hero-left h1 { font-size:2rem; }
+      .auth-card { width:100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Load API helpers -->
+<script src="assets/js/app.js"></script>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo">🌐 AI Multilingual Ticket Translator</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+
+  <!-- Left: headline -->
+  <div class="hero-left">
+    <h1>Break Language<br>Barriers in<br><span>IT Support</span></h1>
+    <p>
+      Submit support tickets in any language — Tamil, Hindi, French, German and more.
+      Our AI detects the language, translates it, categorises the issue, and suggests a response instantly.
+    </p>
+    <div class="steps-mini">
+      <span class="step-chip">1. Submit Ticket</span>
+      <span class="step-chip">2. Detect Language</span>
+      <span class="step-chip">3. Translate</span>
+      <span class="step-chip">4. AI Analysis</span>
+      <span class="step-chip">5. Get Response</span>
+    </div>
+  </div>
+
+  <!-- Right: auth card -->
+  <div class="auth-card">
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-login"    onclick="switchTab('login')">Login</button>
+      <button class="tab-btn"        id="tab-register" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div class="form-body active" id="panel-login">
+      <h3>Welcome Back</h3>
+      <p class="sub">Login to your client account</p>
+
+      <div class="fgroup">
+        <label>Email Address</label>
+        <input type="email" id="l-email" placeholder="you@example.com">
+      </div>
+      <div class="fgroup">
+        <label>Password</label>
+        <input type="password" id="l-pass" placeholder="Enter your password">
+      </div>
+
+      <button class="sbtn" id="login-btn" onclick="doLogin()">Login</button>
+      <div class="imsg" id="login-msg"></div>
+
+      <div class="admin-link">
+        Are you an admin? <a href="pages/admin/login.html">Admin Login →</a>
+      </div>
+    </div>
+
+    <!-- CREATE ACCOUNT PANEL -->
+    <div class="form-body" id="panel-register">
+      <h3>Create Account</h3>
+      <p class="sub">Register a new client account — free</p>
+
+      <div class="fgroup">
+        <label>Full Name</label>
+        <input type="text" id="r-name" placeholder="Your full name">
+      </div>
+      <div class="fgroup">
+        <label>Email Address</label>
+        <input type="email" id="r-email" placeholder="you@example.com">
+      </div>
+      <div class="fgroup">
+        <label>Password</label>
+        <input type="password" id="r-pass" placeholder="Min 6 characters"
+               oninput="pwStrength(this.value)">
+        <div class="sbar"><div class="sbar-fill" id="s-fill"></div></div>
+        <div class="sbar-label" id="s-label"></div>
+      </div>
+      <div class="fgroup">
+        <label>Confirm Password</label>
+        <input type="password" id="r-confirm" placeholder="Re-enter password">
+      </div>
+
+      <button class="sbtn" id="reg-btn" onclick="doRegister()">Create Account</button>
+      <div class="imsg" id="reg-msg"></div>
+
+      <div class="admin-link">
+        Already have an account? <a href="#" onclick="switchTab('login')">Login →</a>
+      </div>
+    </div>
+
+  </div><!-- /auth-card -->
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <h2>Key Features</h2>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <h3>🌐 Language Detection</h3>
+      <p>Automatically identifies the language of incoming support tickets.</p>
+    </div>
+    <div class="feat-card">
+      <h3>🔄 Instant Translation</h3>
+      <p>Converts multilingual tickets into English for support teams.</p>
+    </div>
+    <div class="feat-card">
+      <h3>🏷️ Smart Categorization</h3>
+      <p>Classifies tickets into Network, VPN, Software, Password Reset and more.</p>
+    </div>
+    <div class="feat-card">
+      <h3>⚡ Priority Prediction</h3>
+      <p>Suggests ticket priority based on urgency and issue severity.</p>
+    </div>
+    <div class="feat-card">
+      <h3>💬 Sentiment Analysis</h3>
+      <p>Detects the customer's emotional tone to help agents respond appropriately.</p>
+    </div>
+    <div class="feat-card">
+      <h3>🤖 AI Suggested Reply</h3>
+      <p>Generates a professional response draft for agents to use immediately.</p>
+    </div>
+  </div>
+</section>
+
+<footer>© 2025 AI-Powered Multilingual Ticket Translator</footer>
+
+<script>
+  // ── Tab switch ──────────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    ['login','register'].forEach(t => {
+      document.getElementById(`panel-${t}`).classList.toggle('active', t === tab);
+      document.getElementById(`tab-${t}`).classList.toggle('active',   t === tab);
+    });
+    clearMsg('login-msg');
+    clearMsg('reg-msg');
+  }
+
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = `imsg ${type}`;
+  }
+  function clearMsg(id) {
+    const el = document.getElementById(id);
+    el.textContent = '';
+    el.className = 'imsg';
+  }
+
+  // ── Password strength ───────────────────────────────────────────────────────
+  function pwStrength(val) {
+    let score = 0;
+    if (val.length >= 6)           score++;
+    if (val.length >= 10)          score++;
+    if (/[A-Z]/.test(val))         score++;
+    if (/[0-9]/.test(val))         score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+      { w:'20%',  bg:'#ef4444', t:'Very weak'   },
+      { w:'40%',  bg:'#f97316', t:'Weak'         },
+      { w:'60%',  bg:'#eab308', t:'Fair'         },
+      { w:'80%',  bg:'#22c55e', t:'Strong'       },
+      { w:'100%', bg:'#16a34a', t:'Very strong'  },
+    ];
+    const l = levels[Math.max(0, score - 1)];
+    const fill = document.getElementById('s-fill');
+    fill.style.width      = val ? l.w  : '0%';
+    fill.style.background = l.bg;
+    document.getElementById('s-label').textContent = val ? l.t : '';
+  }
+
+  // ── LOGIN ───────────────────────────────────────────────────────────────────
+  async function doLogin() {
+    const email = document.getElementById('l-email').value.trim();
+    const pass  = document.getElementById('l-pass').value;
+    const btn   = document.getElementById('login-btn');
+    clearMsg('login-msg');
+
+    if (!email || !pass) {
+      showMsg('login-msg', 'Please enter your email and password.', 'err'); return;
+    }
+
+    btn.textContent = 'Logging in…'; btn.disabled = true;
+
+    try {
+      const data = await apiCall('/auth/login', {
+        method: 'POST',
+        body:   JSON.stringify({ email, password: pass }),
+      });
+
+      if (data.user.role !== 'client') {
+        clearAuth();
+        showMsg('login-msg', 'Incorrect email or password.', 'err'); return;
+      }
+
+      saveAuth(data.token, data.user);
+      showMsg('login-msg', `Welcome, ${data.user.name || data.user.email}! Redirecting…`, 'ok');
+      setTimeout(() => { window.location.href = 'pages/client/submit-ticket.html'; }, 900);
+
+    } catch {
+      showMsg('login-msg', 'Incorrect email or password.', 'err');
+    } finally {
+      btn.textContent = 'Login'; btn.disabled = false;
+    }
+  }
+
+  // ── REGISTER ────────────────────────────────────────────────────────────────
+  async function doRegister() {
+    const name    = document.getElementById('r-name').value.trim();
+    const email   = document.getElementById('r-email').value.trim();
+    const pass    = document.getElementById('r-pass').value;
+    const confirm = document.getElementById('r-confirm').value;
+    const btn     = document.getElementById('reg-btn');
+    clearMsg('reg-msg');
+
+    if (!name)  { showMsg('reg-msg','Please enter your full name.','err'); return; }
+    if (!email || !/^\S+@\S+\.\S+$/.test(email))
+                { showMsg('reg-msg','Please enter a valid email.','err'); return; }
+    if (pass.length < 6)
+                { showMsg('reg-msg','Password must be at least 6 characters.','err'); return; }
+    if (pass !== confirm) {
+      showMsg('reg-msg','Passwords do not match.','err');
+      document.getElementById('r-confirm').classList.add('err'); return;
+    }
+    document.getElementById('r-confirm').classList.remove('err');
+
+    btn.textContent = 'Creating account…'; btn.disabled = true;
+
+    try {
+      const data = await apiCall('/auth/register', {
+        method: 'POST',
+        body:   JSON.stringify({ name, email, password: pass, role: 'client' }),
+      });
+
+      showMsg('reg-msg', `Account created! Welcome, ${data.user.name}. Switching to login…`, 'ok');
+
+      setTimeout(() => {
+        document.getElementById('l-email').value = email;
+        document.getElementById('l-pass').value  = pass;
+        switchTab('login');
+        showMsg('login-msg', 'Account created! You can now log in.', 'ok');
+      }, 1200);
+
+    } catch (err) {
+      const msg = (err.message || '').toLowerCase().includes('already')
+        ? 'This email is already registered. Please log in.'
+        : 'Registration failed. Please try again.';
+      showMsg('reg-msg', msg, 'err');
+    } finally {
+      btn.textContent = 'Create Account'; btn.disabled = false;
+    }
+  }
+
+  // ── Enter key ────────────────────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('panel-login').classList.contains('active'))    doLogin();
+    if (document.getElementById('panel-register').classList.contains('active')) doRegister();
+  });
+</script>
+
+</body>
+</html>

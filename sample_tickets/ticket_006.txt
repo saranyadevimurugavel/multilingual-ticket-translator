@@ -1,0 +1,4 @@
+SUBJECT: Email not syncing
+LANGUAGE: German
+
+Meine E-Mails werden seit gestern nicht mehr synchronisiert. Ich benutze Outlook und habe bereits versucht, das Programm neu zu starten. Das Problem besteht weiterhin. Bitte helfen Sie mir.

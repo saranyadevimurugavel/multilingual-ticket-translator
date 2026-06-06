@@ -1,0 +1,492 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Translation Center</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/components/sidebar.css">
+  <link rel="stylesheet" href="../../assets/css/components/navbar.css">
+  <link rel="stylesheet" href="../../assets/css/components/forms.css">
+  <link rel="stylesheet" href="../../assets/css/components/buttons.css">
+  <link rel="stylesheet" href="../../assets/css/components/cards.css">
+  <link rel="stylesheet" href="../../assets/css/responsive.css">
+
+  <style>
+    /* ── Layout ───────────────────────────────────────────── */
+    .tc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    @media(max-width:860px){ .tc-grid { grid-template-columns: 1fr; } }
+
+    /* ── Ticket panel ──────────────────────────────────────── */
+    .tc-panel {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+    .tc-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .tc-panel-header h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+    .lang-badge {
+      background: #eff6ff; color: #2563EB;
+      padding: 3px 12px; border-radius: 50px;
+      font-size: .8rem; font-weight: 700;
+    }
+    .tc-panel-body { padding: 16px 18px; }
+    .tc-textarea {
+      width: 100%; min-height: 140px; padding: 12px;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      font-size: .93rem; line-height: 1.6; resize: vertical;
+      font-family: inherit; color: #0f172a; background: #f8fafc;
+    }
+    .tc-textarea:focus { outline: none; border-color: #2563EB; background: #fff; }
+
+    /* ── AI badges row ─────────────────────────────────────── */
+    .ai-badges {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;
+    }
+    .ai-badge-item { text-align: center; }
+    .ai-badge-item .lbl {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      color: #94a3b8; display: block; margin-bottom: 4px;
+    }
+    .badge {
+      display: inline-block; padding: 4px 14px;
+      border-radius: 50px; font-size: .82rem; font-weight: 700;
+    }
+    .badge-blue   { background: #eff6ff; color: #2563EB; }
+    .badge-green  { background: #f0fdf4; color: #16a34a; }
+    .badge-orange { background: #fff7ed; color: #d97706; }
+    .badge-red    { background: #fef2f2; color: #dc2626; }
+    .badge-purple { background: #faf5ff; color: #7c3aed; }
+    .badge-gray   { background: #f1f5f9; color: #475569; }
+
+    /* ── Summary & Response boxes ─────────────────────────── */
+    .info-box {
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 12px 14px;
+      font-size: .9rem; line-height: 1.6; margin-bottom: 14px;
+      color: #0f172a;
+    }
+    .info-box.response { background: #eff6ff; border-color: #bfdbfe; font-style: italic; }
+    .field-label {
+      font-size: .75rem; font-weight: 700; text-transform: uppercase;
+      color: #94a3b8; display: block; margin-bottom: 5px;
+    }
+
+    /* ── Confidence bar ────────────────────────────────────── */
+    .conf-bar-wrap { margin-bottom: 16px; }
+    .conf-bar-bg {
+      height: 6px; background: #e2e8f0; border-radius: 6px; margin-top: 6px;
+    }
+    .conf-bar-fill {
+      height: 100%; border-radius: 6px;
+      background: linear-gradient(90deg,#2563EB,#22c55e);
+      transition: width .5s;
+    }
+
+    /* ── Reply section ─────────────────────────────────────── */
+    .reply-section {
+      background: #fff; border-radius: 12px;
+      border: 1px solid #e2e8f0; padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      margin-bottom: 20px;
+    }
+    .reply-section h3 { margin-bottom: 14px; font-size: 1rem; }
+    .reply-textarea {
+      width: 100%; min-height: 110px; padding: 12px;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      font-size: .93rem; line-height: 1.6; resize: vertical;
+      font-family: inherit; transition: border-color .2s;
+    }
+    .reply-textarea:focus { outline: none; border-color: #2563EB; }
+
+    /* ── Action buttons ────────────────────────────────────── */
+    .action-bar {
+      display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;
+    }
+    .btn-approve {
+      padding: 10px 24px; background: #22c55e; color: #fff;
+      border: none; border-radius: 8px; font-weight: 700;
+      cursor: pointer; font-size: .95rem; transition: .2s;
+    }
+    .btn-approve:hover { background: #16a34a; }
+    .btn-reject {
+      padding: 10px 24px; background: #ef4444; color: #fff;
+      border: none; border-radius: 8px; font-weight: 700;
+      cursor: pointer; font-size: .95rem; transition: .2s;
+    }
+    .btn-reject:hover { background: #dc2626; }
+    .btn-send-reply {
+      padding: 10px 24px; background: #2563EB; color: #fff;
+      border: none; border-radius: 8px; font-weight: 700;
+      cursor: pointer; font-size: .95rem; transition: .2s;
+    }
+    .btn-send-reply:hover { background: #1d4ed8; }
+    .btn-next {
+      padding: 10px 20px; background: #f1f5f9;
+      border: none; border-radius: 8px; font-weight: 600;
+      cursor: pointer; font-size: .95rem; transition: .2s;
+      margin-left: auto;
+    }
+    .btn-next:hover { background: #e2e8f0; }
+
+    /* ── Translated reply result ────────────────────────────── */
+    .reply-result {
+      margin-top: 16px; padding: 14px; border-radius: 10px;
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      display: none;
+    }
+    .reply-result.show { display: block; }
+
+    /* ── Empty state ───────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: #94a3b8;
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── Ticket counter ────────────────────────────────────── */
+    .ticket-counter {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 20px; padding: 12px 16px;
+      background: #fff; border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
+    .counter-badge {
+      background: #2563EB; color: #fff;
+      padding: 4px 14px; border-radius: 50px;
+      font-size: .85rem; font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+<script src="../../assets/js/app.js"></script>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon">🌐</div>
+      <div class="logo-text"><h3>MTT</h3><p>Ticket Translator</p></div>
+    </div>
+    <ul class="menu">
+      <li class="menu-item"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li class="menu-item active"><a href="translation-center.html">🌍 Translation Center</a></li>
+      <li class="menu-item"><a href="history.html">🕒 History</a></li>
+      <li class="menu-item"><a href="batch.html">📂 Batch Processing</a></li>
+      <li class="menu-item"><a href="glossary.html">📖 Glossary</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="top-navbar">
+      <button class="hamburger">☰</button>
+      <div class="app-title">🌍 Translation Center</div>
+    </header>
+
+    <section class="content-wrapper">
+
+      <!-- Ticket counter -->
+      <div class="ticket-counter" id="ticket-counter" style="display:none;">
+        <span>Reviewing Ticket</span>
+        <span class="counter-badge" id="ticket-id-badge">#—</span>
+        <span id="pending-count" style="color:#64748b; font-size:.88rem;"></span>
+      </div>
+
+      <!-- Loading state -->
+      <div id="loading-state" style="text-align:center; padding:60px; color:#64748b;">
+        <div style="font-size:2rem;">⏳</div>
+        <p style="margin-top:10px;">Loading pending tickets…</p>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <div class="icon">✅</div>
+        <h3>All caught up!</h3>
+        <p>No pending tickets to review.</p>
+      </div>
+
+      <!-- Main content (hidden until ticket loads) -->
+      <div id="main-content" style="display:none;">
+
+        <!-- Top: Original + Translation panels -->
+        <div class="tc-grid">
+
+          <!-- Original ticket panel -->
+          <div class="tc-panel">
+            <div class="tc-panel-header">
+              <h3>📝 Original Ticket</h3>
+              <span class="lang-badge" id="orig-lang-badge">—</span>
+            </div>
+            <div class="tc-panel-body">
+              <span class="field-label">Subject</span>
+              <div class="info-box" id="orig-subject" style="margin-bottom:12px;">—</div>
+              <span class="field-label">Message (Customer's Language)</span>
+              <textarea class="tc-textarea" id="orig-message" readonly></textarea>
+            </div>
+          </div>
+
+          <!-- English translation panel -->
+          <div class="tc-panel">
+            <div class="tc-panel-header">
+              <h3>🔄 English Translation</h3>
+              <span class="lang-badge" style="background:#f0fdf4; color:#16a34a;">English</span>
+            </div>
+            <div class="tc-panel-body">
+              <span class="field-label">Translated Message</span>
+              <textarea class="tc-textarea" id="trans-message" readonly></textarea>
+
+              <!-- Confidence bar -->
+              <div class="conf-bar-wrap" style="margin-top:12px;">
+                <span class="field-label">AI Confidence</span>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="conf-bar-bg" style="flex:1;">
+                    <div class="conf-bar-fill" id="conf-fill" style="width:0%"></div>
+                  </div>
+                  <span id="conf-pct" style="font-weight:700; color:#2563EB; font-size:.9rem;">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- AI Analysis row -->
+        <div class="tc-panel" style="margin-bottom:20px;">
+          <div class="tc-panel-header">
+            <h3>🤖 AI Analysis</h3>
+          </div>
+          <div class="tc-panel-body">
+
+            <!-- Badges -->
+            <div class="ai-badges">
+              <div class="ai-badge-item">
+                <span class="lbl">Category</span>
+                <span class="badge badge-blue" id="ai-category">—</span>
+              </div>
+              <div class="ai-badge-item">
+                <span class="lbl">Priority</span>
+                <span class="badge" id="ai-priority">—</span>
+              </div>
+              <div class="ai-badge-item">
+                <span class="lbl">Sentiment</span>
+                <span class="badge" id="ai-sentiment">—</span>
+              </div>
+              <div class="ai-badge-item">
+                <span class="lbl">Status</span>
+                <span class="badge badge-gray" id="ai-status">—</span>
+              </div>
+            </div>
+
+            <!-- Summary -->
+            <span class="field-label">📋 Summary</span>
+            <div class="info-box" id="ai-summary">—</div>
+
+            <!-- Suggested response -->
+            <span class="field-label">💡 AI Suggested Response</span>
+            <div class="info-box response" id="ai-suggested">—</div>
+
+          </div>
+        </div>
+
+        <!-- Reply section -->
+        <div class="reply-section">
+          <h3>📨 Engineer Reply</h3>
+          <p style="color:#64748b; font-size:.88rem; margin-bottom:14px;">
+            Write your reply in English — it will be automatically translated
+            back to <strong id="reply-lang-hint">the customer's language</strong>.
+          </p>
+
+          <span class="field-label">Your Reply (in English)</span>
+          <textarea class="reply-textarea" id="engineer-reply"
+            placeholder="Type your reply here in English..."></textarea>
+
+          <!-- Translated reply result -->
+          <div class="reply-result" id="reply-result">
+            <span class="field-label">✅ English Reply</span>
+            <div class="info-box" id="rr-english">—</div>
+            <span class="field-label" style="margin-top:10px;">
+              🌐 Translated Reply (Customer's Language)
+            </span>
+            <div class="info-box response" id="rr-translated">—</div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="action-bar">
+            <button class="btn-approve"    onclick="approveTicket()">✅ Approve</button>
+            <button class="btn-reject"     onclick="rejectTicket()">❌ Reject</button>
+            <button class="btn-send-reply" onclick="sendReply()">📤 Send Reply & Translate</button>
+            <button class="btn-next"       onclick="loadNextTicket()">Next Ticket ›</button>
+          </div>
+        </div>
+
+      </div><!-- /main-content -->
+
+    </section>
+  </main>
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+
+<script>
+  let currentTicket = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!getToken()) { window.location.href = 'login.html'; return; }
+    loadNextTicket();
+  });
+
+  // ── Load next pending ticket ──────────────────────────────────────────────
+  async function loadNextTicket() {
+    show('loading-state'); hide('main-content'); hide('empty-state');
+    hide('ticket-counter');
+    document.getElementById('reply-result').classList.remove('show');
+    document.getElementById('engineer-reply').value = '';
+
+    try {
+      const data = await apiCall('/tickets/pending');
+      const t    = data.ticket;
+
+      if (!t) { hide('loading-state'); show('empty-state'); return; }
+
+      currentTicket = t;
+      renderTicket(t);
+      hide('loading-state');
+      show('main-content');
+      show('ticket-counter');
+
+    } catch (err) {
+      hide('loading-state');
+      showAlert('Failed to load ticket: ' + err.message, 'error');
+    }
+  }
+
+  function renderTicket(t) {
+    // Counter
+    document.getElementById('ticket-id-badge').textContent = `#${t.id}`;
+    document.getElementById('pending-count').textContent   = '';
+
+    // Original panel
+    document.getElementById('orig-lang-badge').textContent = (t.source_language || '—').toUpperCase();
+    document.getElementById('orig-subject').textContent    = t.subject || '—';
+    document.getElementById('orig-message').value          = t.original_message || '—';
+
+    // Translation panel
+    document.getElementById('trans-message').value = t.translated_message || '—';
+
+    // Confidence
+    const conf = t.confidence ?? 95;
+    document.getElementById('conf-fill').style.width    = `${conf}%`;
+    document.getElementById('conf-pct').textContent     = `${conf}%`;
+
+    // AI Analysis badges
+    document.getElementById('ai-category').textContent  = t.category  || '—';
+    document.getElementById('ai-summary').textContent   = t.summary   || '—';
+    document.getElementById('ai-suggested').textContent = t.suggested_response || '—';
+    document.getElementById('ai-status').textContent    = capitalise(t.status || 'pending');
+
+    // Priority badge colour
+    const priEl = document.getElementById('ai-priority');
+    priEl.textContent = t.priority || '—';
+    priEl.className   = 'badge ' + priorityClass(t.priority);
+
+    // Sentiment badge colour
+    const senEl = document.getElementById('ai-sentiment');
+    senEl.textContent = t.sentiment || '—';
+    senEl.className   = 'badge ' + sentimentClass(t.sentiment);
+
+    // Reply hint
+    const langName = langDisplayName(t.source_language);
+    document.getElementById('reply-lang-hint').textContent = langName;
+  }
+
+  // ── Approve ───────────────────────────────────────────────────────────────
+  async function approveTicket() {
+    if (!currentTicket) return;
+    try {
+      await apiCall(`/tickets/${currentTicket.id}/approve`, { method: 'POST' });
+      showAlert(`Ticket #${currentTicket.id} approved ✅`, 'success');
+      setTimeout(loadNextTicket, 700);
+    } catch (err) { showAlert(err.message, 'error'); }
+  }
+
+  // ── Reject ────────────────────────────────────────────────────────────────
+  async function rejectTicket() {
+    if (!currentTicket) return;
+    try {
+      await apiCall(`/tickets/${currentTicket.id}/reject`, { method: 'POST' });
+      showAlert(`Ticket #${currentTicket.id} rejected ❌`, 'error');
+      setTimeout(loadNextTicket, 700);
+    } catch (err) { showAlert(err.message, 'error'); }
+  }
+
+  // ── Send reply ────────────────────────────────────────────────────────────
+  async function sendReply() {
+    if (!currentTicket) return;
+    const reply = document.getElementById('engineer-reply').value.trim();
+    if (!reply) { showAlert('Please type a reply first.', 'error'); return; }
+
+    const btn = document.querySelector('.btn-send-reply');
+    btn.textContent = '⏳ Translating…'; btn.disabled = true;
+
+    try {
+      const data = await apiCall('/batch/reply', {
+        method: 'POST',
+        body:   JSON.stringify({ ticket_id: currentTicket.id, english_reply: reply }),
+      });
+
+      const r = data.data;
+      document.getElementById('rr-english').textContent    = r.english_reply;
+      document.getElementById('rr-translated').textContent = r.translated_reply;
+      document.getElementById('reply-result').classList.add('show');
+
+      showAlert(`Reply translated to ${r.language_name} and saved! ✅`, 'success');
+      btn.textContent = '✅ Reply Sent';
+
+    } catch (err) {
+      showAlert(err.message, 'error');
+      btn.textContent = '📤 Send Reply & Translate';
+      btn.disabled = false;
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function show(id) { document.getElementById(id).style.display = 'block'; }
+  function hide(id) { document.getElementById(id).style.display = 'none';  }
+  function capitalise(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function priorityClass(p) {
+    return { Critical:'badge-purple', High:'badge-red',
+             Medium:'badge-orange', Low:'badge-green' }[p] || 'badge-gray';
+  }
+  function sentimentClass(s) {
+    return { 'Very Negative':'badge-red', Negative:'badge-orange',
+             Neutral:'badge-blue', Positive:'badge-green' }[s] || 'badge-gray';
+  }
+
+  const LANG_MAP = {
+    'ta':'Tamil','hi':'Hindi','ml':'Malayalam','te':'Telugu','kn':'Kannada',
+    'bn':'Bengali','fr':'French','de':'German','es':'Spanish','en':'English',
+    'ar':'Arabic','ja':'Japanese','ko':'Korean','ru':'Russian','zh-cn':'Chinese',
+    'mr':'Marathi','gu':'Gujarati','pa':'Punjabi','ur':'Urdu',
+  };
+  function langDisplayName(code) { return LANG_MAP[code] || (code||'').toUpperCase(); }
+</script>
+
+</body>
+</html>

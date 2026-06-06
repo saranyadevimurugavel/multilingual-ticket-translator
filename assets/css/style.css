@@ -1,0 +1,77 @@
+/* ===========================
+   DESIGN SYSTEM
+=========================== */
+
+:root {
+
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+
+    --sidebar-bg: #0F172A;
+
+    --bg-main: #F8FAFC;
+    --bg-card: #FFFFFF;
+
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+
+    --border-color: #E2E8F0;
+
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --info: #06B6D4;
+
+    --radius: 12px;
+
+    --sidebar-width: 260px;
+
+    --shadow:
+        0 1px 2px rgba(0,0,0,0.05),
+        0 8px 24px rgba(0,0,0,0.08);
+
+    --transition: all .3s ease;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:
+    "Segoe UI",
+    Inter,
+    Arial,
+    sans-serif;
+
+    background:var(--bg-main);
+    color:var(--text-primary);
+}
+
+a{
+    text-decoration:none;
+}
+
+ul{
+    list-style:none;
+}
+
+.app-layout{
+    display:flex;
+    min-height:100vh;
+}
+
+.main-content{
+    flex:1;
+    margin-left:260px;
+}
+
+.content-wrapper{
+    padding:24px;
+}

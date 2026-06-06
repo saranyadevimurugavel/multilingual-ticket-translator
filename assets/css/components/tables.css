@@ -1,0 +1,23 @@
+.table-container{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+thead{
+    background:#F1F5F9;
+}
+
+th{
+    text-align:left;
+    padding:14px;
+}
+
+td{
+    padding:14px;
+    border-top:
+    1px solid var(--border-color);
+}

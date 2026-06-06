@@ -1,0 +1,4 @@
+SUBJECT: Cannot access VPN
+LANGUAGE: French
+
+Bonjour, je ne peux pas me connecter au VPN de l'entreprise depuis ce matin. J'ai essayé de redémarrer mon ordinateur mais le problème persiste. Pouvez-vous m'aider s'il vous plaît?

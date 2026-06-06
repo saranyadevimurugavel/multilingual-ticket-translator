@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard</title>
+
+<link rel="stylesheet" href="../../assets/css/style.css">
+<link rel="stylesheet" href="../../assets/css/components/sidebar.css">
+<link rel="stylesheet" href="../../assets/css/components/navbar.css">
+<link rel="stylesheet" href="../../assets/css/components/cards.css">
+<link rel="stylesheet" href="../../assets/css/components/tables.css">
+<link rel="stylesheet" href="../../assets/css/components/buttons.css">
+<link rel="stylesheet" href="../../assets/css/responsive.css">
+
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+
+        <div class="logo-area">
+            <div class="logo-icon">🌐</div>
+
+            <div class="logo-text">
+                <h3>MTT</h3>
+                <p>Translator</p>
+            </div>
+        </div>
+
+        <ul class="menu">
+
+            <li class="menu-item active">
+                <a href="#">📊 Dashboard</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="translation-center.html">
+                    🌍 Translation Center
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="history.html">
+                    🕒 History
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="glossary.html">
+                    📖 Glossary
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="batch.html">📂 Batch Processing</a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <main class="main-content">
+
+        <header class="top-navbar">
+
+            <button class="hamburger">
+                ☰
+            </button>
+
+            <div class="app-title">
+                Multilingual Ticket Translator
+            </div>
+
+            <div class="navbar-right">
+
+                <div class="search-box">
+                    <input type="text" placeholder="Search">
+                </div>
+
+                <button class="icon-btn">
+                    🔔
+                </button>
+
+            </div>
+
+        </header>
+
+        <section class="content-wrapper">
+
+            <div class="dashboard-grid">
+
+                <div class="card stats-card">
+                    <p>Total Tickets</p>
+                    <h2>12,458</h2>
+                </div>
+
+                <div class="card stats-card">
+                    <p>Pending</p>
+                    <h2>248</h2>
+                </div>
+
+                <div class="card stats-card">
+                    <p>Translated Today</p>
+                    <h2>1,234</h2>
+                </div>
+
+                <div class="card stats-card">
+                    <p>Glossary Terms</p>
+                    <h2>8,912</h2>
+                </div>
+
+            </div>
+
+            <br>
+
+            <div class="card">
+
+                <div class="card-title">
+                    Recent Tickets
+                </div>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>ID</th>
+                                <th>Language</th>
+                                <th>Status</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>#1001</td>
+                                <td>French</td>
+                                <td>Translated</td>
+                            </tr>
+
+                            <tr>
+                                <td>#1002</td>
+                                <td>German</td>
+                                <td>Pending</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/dashboard.js"></script>
+
+</body>
+</html>
