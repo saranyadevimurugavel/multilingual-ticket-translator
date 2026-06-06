@@ -11,19 +11,18 @@ import os, re, json, requests
 from langdetect import detect, DetectorFactory
 from langdetect.lang_detect_exception import LangDetectException
 
-try:
-    import google.generativeai as genai
-    _GEMINI_AVAILABLE = True
-except ImportError:
-    _GEMINI_AVAILABLE = False
-
 DetectorFactory.seed = 42
 
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 MYMEMORY_URL   = 'https://api.mymemory.translated.net/get'
 
-if _GEMINI_AVAILABLE and GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+try:
+    import google.generativeai as genai
+    _GEMINI_AVAILABLE = bool(GEMINI_API_KEY)
+    if _GEMINI_AVAILABLE:
+        genai.configure(api_key=GEMINI_API_KEY)
+except Exception:
+    _GEMINI_AVAILABLE = False
 
 # ── Language name map ─────────────────────────────────────────────────────────
 LANG_NAMES = {
