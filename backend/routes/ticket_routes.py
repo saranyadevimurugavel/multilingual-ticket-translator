@@ -38,9 +38,9 @@ def submit_ticket():
     Request JSON:
         {
           "subject":  "Cannot access my account",
-          "language": "French",          ← from the <select> dropdown
           "message":  "Bonjour, je ne peux pas accéder à mon compte."
         }
+        Language is auto-detected from the message — no hint needed from the client.
 
     Response 201:
         {
