@@ -1,71 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Admin Login</title>
-
-<link rel="stylesheet" href="../../assets/css/style.css">
-<link rel="stylesheet" href="../../assets/css/components/forms.css">
-<link rel="stylesheet" href="../../assets/css/components/buttons.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/components/forms.css">
+  <link rel="stylesheet" href="../../assets/css/components/buttons.css">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #F0F4FF;
+    }
+    .login-card {
+      background: #fff;
+      width: 400px;
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 8px 32px rgba(37,99,235,0.12);
+    }
+    .login-card h2 {
+      margin-bottom: 6px;
+      font-size: 1.5rem;
+      color: #0f172a;
+    }
+    .login-card .subtitle {
+      font-size: .88rem;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: .95rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      box-sizing: border-box;
+    }
+    .form-control:focus {
+      border-color: #2563EB;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: #2563EB;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background .2s;
+    }
+    .btn-submit:hover    { background: #1d4ed8; }
+    .btn-submit:disabled { background: #93c5fd; cursor: not-allowed; }
+    .msg {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: .88rem;
+      font-weight: 600;
+      margin-top: 14px;
+      display: none;
+    }
+    .msg.error   { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; display:block; }
+    .msg.warning { background:#fffbeb; color:#d97706; border:1px solid #fde68a; display:block; }
+    .msg.success { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; display:block; }
+    .hint {
+      text-align: center;
+      font-size: .82rem;
+      color: #94a3b8;
+      margin-top: 16px;
+    }
+  </style>
 </head>
-
 <body>
 <script src="../../assets/js/app.js"></script>
-<script src="../../assets/js/home.js"></script>
 
-<div
-style="
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-">
+<div class="login-card">
+  <h2>Admin Login</h2>
+  <p class="subtitle">Sign in to the admin portal</p>
 
-<div class="card" style="width:400px;">
+  <!-- Server warm-up notice -->
+  <div class="msg warning" id="warmup-msg" style="display:none;">
+    ⏳ Backend is starting up, please wait…
+  </div>
 
-<h2 style="margin-bottom:20px;">
-Admin Login
-</h2>
+  <div class="form-group">
+    <label class="form-label">Email</label>
+    <input type="email" class="form-control" id="admin-email"
+           placeholder="admin@mtt.com" autocomplete="email">
+  </div>
 
-<div class="form-group">
+  <div class="form-group">
+    <label class="form-label">Password</label>
+    <input type="password" class="form-control" id="admin-password"
+           placeholder="Enter your password" autocomplete="current-password">
+  </div>
 
-<label class="form-label">
-Email
-</label>
-
-<input
-type="email"
-class="form-control">
-
+  <button class="btn-submit" id="login-btn" onclick="handleAdminLogin()">Login</button>
+  <div class="msg" id="login-msg"></div>
+  <p class="hint">Default: admin@mtt.com / admin123</p>
 </div>
 
-<div class="form-group">
+<script>
+  // ── Warm up the Render backend on page load ────────────────────────────────
+  (async () => {
+    try {
+      const warmup = document.getElementById('warmup-msg');
+      // Quick health check — if it takes > 3s the backend was sleeping
+      const start = Date.now();
+      const res   = await fetch(`${API_BASE.replace('/api', '')}/api/health`, { method: 'GET' });
+      const took  = Date.now() - start;
+      if (took > 3000) {
+        // Was sleeping — show brief notice then hide
+        warmup.style.display = 'block';
+        setTimeout(() => { warmup.style.display = 'none'; }, 3000);
+      }
+    } catch (_) {
+      // Backend unreachable — user will see warning when they try to log in
+    }
+  })();
 
-<label class="form-label">
-Password
-</label>
+  // Allow Enter key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleAdminLogin();
+  });
 
-<input
-type="password"
-class="form-control">
+  function showMsg(text, type) {
+    const el = document.getElementById('login-msg');
+    el.textContent = text;
+    el.className = `msg ${type}`;
+  }
 
-</div>
+  async function handleAdminLogin() {
+    const email    = document.getElementById('admin-email').value.trim();
+    const password = document.getElementById('admin-password').value;
+    const btn      = document.getElementById('login-btn');
 
-<button
-class="btn btn-primary"
-style="width:100%;">
-Login
-</button>
+    document.getElementById('login-msg').className = 'msg';
 
-</div>
+    if (!email || !password) {
+      showMsg('Please enter your email and password.', 'error');
+      return;
+    }
 
-</div>
+    btn.textContent = 'Logging in…';
+    btn.disabled    = true;
 
+    try {
+      const data = await apiCall('/auth/login', {
+        method: 'POST',
+        body:   JSON.stringify({ email, password }),
+      });
+
+      // Block non-admin credentials
+      if (data.user.role !== 'admin') {
+        clearAuth();
+        showMsg('Access denied. Admin credentials required.', 'error');
+        btn.textContent = 'Login';
+        btn.disabled    = false;
+        return;
+      }
+
+      saveAuth(data.token, data.user);
+      showMsg('Login successful! Redirecting…', 'success');
+
+      setTimeout(() => {
+        window.location.href = '../../pages/admin/dashboard.html';
+      }, 800);
+
+    } catch (err) {
+      btn.textContent = 'Login';
+      btn.disabled    = false;
+
+      // Distinguish network errors from wrong credentials
+      if (!err.status) {
+        // No HTTP status — backend unreachable (Render sleeping or CORS issue)
+        showMsg(
+          '⚠ Cannot reach the server. The backend may be waking up — please wait 30 seconds and try again.',
+          'warning'
+        );
+      } else if (err.status === 401) {
+        showMsg('Incorrect email or password.', 'error');
+      } else {
+        showMsg(`Error (${err.status}): ${err.message}`, 'error');
+      }
+    }
+  }
+</script>
 </body>
-
 </html>
