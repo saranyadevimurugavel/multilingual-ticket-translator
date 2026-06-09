@@ -1,118 +1,491 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/components/sidebar.css">
+  <link rel="stylesheet" href="../../assets/css/components/navbar.css">
+  <link rel="stylesheet" href="../../assets/css/components/cards.css">
+  <link rel="stylesheet" href="../../assets/css/components/tables.css">
+  <link rel="stylesheet" href="../../assets/css/components/forms.css">
+  <link rel="stylesheet" href="../../assets/css/components/buttons.css">
+  <link rel="stylesheet" href="../../assets/css/responsive.css">
 
-<title>History</title>
+  <style>
+    /* ── Filter bar ─────────────────────────────────────────── */
+    .filter-bar {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      align-items: center; margin-bottom: 20px;
+    }
+    .filter-bar select, .filter-bar input {
+      padding: 8px 12px; border: 1.5px solid #e2e8f0;
+      border-radius: 8px; font-size: .88rem; outline: none;
+      transition: border-color .2s;
+    }
+    .filter-bar select:focus, .filter-bar input:focus { border-color: #2563EB; }
+    .filter-bar .btn-sm {
+      padding: 8px 18px; background: #2563EB; color: #fff;
+      border: none; border-radius: 8px; font-size: .88rem;
+      font-weight: 600; cursor: pointer; transition: background .2s;
+    }
+    .filter-bar .btn-sm:hover { background: #1d4ed8; }
+    .filter-bar .btn-reset {
+      padding: 8px 14px; background: #f1f5f9; color: #475569;
+      border: none; border-radius: 8px; font-size: .88rem;
+      font-weight: 600; cursor: pointer;
+    }
 
-<link rel="stylesheet" href="../../assets/css/style.css">
-<link rel="stylesheet" href="../../assets/css/components/sidebar.css">
-<link rel="stylesheet" href="../../assets/css/components/navbar.css">
-<link rel="stylesheet" href="../../assets/css/components/cards.css">
-<link rel="stylesheet" href="../../assets/css/components/forms.css">
-<link rel="stylesheet" href="../../assets/css/components/buttons.css">
-<link rel="stylesheet" href="../../assets/css/responsive.css">
+    /* ── Table ──────────────────────────────────────────────── */
+    .tickets-table { width: 100%; border-collapse: collapse; }
+    .tickets-table th {
+      background: #f8fafc; padding: 10px 14px;
+      text-align: left; font-size: .78rem; font-weight: 700;
+      text-transform: uppercase; color: #64748b;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .tickets-table td {
+      padding: 11px 14px; border-bottom: 1px solid #f1f5f9;
+      font-size: .9rem; vertical-align: middle;
+    }
+    .tickets-table tr.clickable { cursor: pointer; transition: background .12s; }
+    .tickets-table tr.clickable:hover td { background: #f0f7ff; }
+
+    /* ── Badges ─────────────────────────────────────────────── */
+    .badge {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 50px; font-size: .75rem; font-weight: 700;
+    }
+    .b-pending  { background: #fff7ed; color: #d97706; }
+    .b-approved { background: #f0fdf4; color: #16a34a; }
+    .b-rejected { background: #fef2f2; color: #dc2626; }
+    .b-lang     { background: #eff6ff; color: #2563EB; }
+    .b-critical { background: #faf5ff; color: #7c3aed; }
+    .b-high     { background: #fef2f2; color: #dc2626; }
+    .b-medium   { background: #fff7ed; color: #d97706; }
+    .b-low      { background: #f0fdf4; color: #16a34a; }
+
+    /* ── Pagination ─────────────────────────────────────────── */
+    .pagination {
+      display: flex; gap: 6px; justify-content: center;
+      align-items: center; margin-top: 20px; flex-wrap: wrap;
+    }
+    .page-btn {
+      padding: 6px 13px; border: 1.5px solid #e2e8f0;
+      border-radius: 6px; background: #fff; cursor: pointer;
+      font-size: .85rem; transition: .15s;
+    }
+    .page-btn:hover  { border-color: #2563EB; color: #2563EB; }
+    .page-btn.active { background: #2563EB; color: #fff; border-color: #2563EB; }
+    .page-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Detail drawer ──────────────────────────────────────── */
+    .drawer-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.4); z-index: 1000;
+    }
+    .drawer-overlay.open { display: block; }
+    .drawer {
+      position: fixed; top: 0; right: -520px; width: 500px;
+      max-width: 95vw; height: 100vh; background: #fff;
+      box-shadow: -4px 0 30px rgba(0,0,0,.15);
+      transition: right .3s ease; z-index: 1001;
+      overflow-y: auto; padding: 28px 24px;
+    }
+    .drawer.open { right: 0; }
+    .drawer-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 20px;
+    }
+    .drawer-header h3 { font-size: 1.1rem; margin: 0; }
+    .close-btn {
+      background: none; border: none; font-size: 1.4rem;
+      cursor: pointer; color: #64748b; line-height: 1;
+    }
+    .close-btn:hover { color: #0f172a; }
+    .dl { margin-bottom: 14px; }
+    .dl .lbl {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      color: #94a3b8; display: block; margin-bottom: 4px;
+    }
+    .dl .val {
+      font-size: .9rem; color: #0f172a; line-height: 1.6;
+    }
+    .text-box {
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 10px 13px;
+      font-size: .88rem; line-height: 1.6; white-space: pre-wrap;
+    }
+    .text-box.response {
+      background: #eff6ff; border-color: #bfdbfe;
+      color: #1e40af; font-style: italic;
+    }
+    .drawer-actions {
+      display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;
+    }
+    .btn-approve {
+      flex: 1; padding: 10px; background: #22c55e; color: #fff;
+      border: none; border-radius: 8px; font-weight: 700;
+      cursor: pointer; font-size: .92rem; transition: .2s;
+    }
+    .btn-approve:hover { background: #16a34a; }
+    .btn-reject {
+      flex: 1; padding: 10px; background: #ef4444; color: #fff;
+      border: none; border-radius: 8px; font-weight: 700;
+      cursor: pointer; font-size: .92rem; transition: .2s;
+    }
+    .btn-reject:hover { background: #dc2626; }
+
+    /* ── Empty / loading states ─────────────────────────────── */
+    .state-row td {
+      text-align: center; padding: 40px;
+      color: #94a3b8; font-style: italic;
+    }
+
+    /* ── Count badge ────────────────────────────────────────── */
+    .count-badge {
+      background: #eff6ff; color: #2563EB;
+      padding: 2px 10px; border-radius: 50px;
+      font-size: .8rem; font-weight: 700; margin-left: 8px;
+    }
+  </style>
 </head>
 
 <body>
+<script src="../../assets/js/app.js"></script>
 
 <div class="app-layout">
 
-    <aside class="sidebar">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon">🌐</div>
+      <div class="logo-text"><h3>MTT</h3><p>Ticket Translator</p></div>
+    </div>
+    <ul class="menu">
+      <li class="menu-item"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li class="menu-item"><a href="translation-center.html">🌍 Translation Center</a></li>
+      <li class="menu-item active"><a href="history.html">🕒 History</a></li>
+      <li class="menu-item"><a href="batch.html">📂 Batch Processing</a></li>
+    </ul>
+  </aside>
 
-        <div class="logo-area">
-            <div class="logo-icon">🌐</div>
-            <div class="logo-text">
-                <h3>MTT</h3>
-                <p>Ticket Translator</p>
-            </div>
+  <main class="main-content">
+
+    <header class="top-navbar">
+      <button class="hamburger">☰</button>
+      <div class="app-title">🕒 Ticket History</div>
+    </header>
+
+    <section class="content-wrapper">
+
+      <div class="card">
+
+        <div class="card-title" style="display:flex; align-items:center;">
+          All Tickets
+          <span class="count-badge" id="total-count">0</span>
         </div>
 
-        <ul class="menu">
-            <li class="menu-item">
-                <a href="dashboard.html">📊 Dashboard</a>
-            </li>
-            <li class="menu-item">
-                <a href="translation-center.html">🌍 Translation Center</a>
-            </li>
-            <li class="menu-item active">
-                <a href="history.html">🕒 History</a>
-            </li>
-            <li class="menu-item">
-                <a href="batch.html">📂 Batch Processing</a>
-            </li>
-        </ul>
+        <!-- Filter bar -->
+        <div class="filter-bar">
+          <select id="f-status" onchange="applyFilters()">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
 
-    </aside>
+          <select id="f-language" onchange="applyFilters()">
+            <option value="">All Languages</option>
+            <option value="ta">Tamil</option>
+            <option value="hi">Hindi</option>
+            <option value="ml">Malayalam</option>
+            <option value="te">Telugu</option>
+            <option value="kn">Kannada</option>
+            <option value="bn">Bengali</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="es">Spanish</option>
+            <option value="ar">Arabic</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="ru">Russian</option>
+            <option value="zh-cn">Chinese</option>
+            <option value="en">English</option>
+          </select>
 
-    <main class="main-content">
+          <button class="btn-reset" onclick="resetFilters()">✕ Clear</button>
+        </div>
 
-        <header class="top-navbar">
-            <button class="hamburger">☰</button>
-            <div class="app-title">History</div>
-        </header>
+        <!-- Table -->
+        <div class="table-container">
+          <table class="tickets-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Subject</th>
+                <th>Language</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Sentiment</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="tickets-tbody">
+              <tr class="state-row"><td colspan="8">Loading tickets…</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-        <section class="content-wrapper">
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
 
-            <div class="card">
+      </div>
 
-                <div class="card-title">
-                    Translation Queue
-                </div>
+    </section>
+  </main>
+</div>
 
-                <div class="form-group">
-                    <label class="form-label">Ticket ID</label>
-                    <input class="form-control" value="TK-1001">
-                </div>
+<!-- ── Detail Drawer ─────────────────────────────────────────────────────── -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
 
-                <div class="form-group">
-                    <label class="form-label">Source Language</label>
-                    <input class="form-control" value="French">
-                </div>
+<div class="drawer" id="detail-drawer">
+  <div class="drawer-header">
+    <h3 id="d-title">Ticket #—</h3>
+    <button class="close-btn" onclick="closeDrawer()">✕</button>
+  </div>
 
-                <div class="form-group">
-                    <label class="form-label">Target Language</label>
-                    <input class="form-control" value="English">
-                </div>
+  <!-- Badges row -->
+  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;">
+    <span class="badge b-lang"    id="d-lang">—</span>
+    <span class="badge"           id="d-priority">—</span>
+    <span class="badge"           id="d-sentiment">—</span>
+    <span class="badge"           id="d-status">—</span>
+  </div>
 
-                <div class="form-group">
-                    <label class="form-label">Original Ticket</label>
+  <div class="dl">
+    <span class="lbl">Category</span>
+    <span class="val" id="d-category">—</span>
+  </div>
 
-                    <textarea
-                        class="form-control"
-                        rows="6">
-Bonjour, je ne peux pas accéder à mon compte.
-                    </textarea>
-                </div>
+  <div class="dl">
+    <span class="lbl">📝 Original Message</span>
+    <div class="text-box" id="d-original">—</div>
+  </div>
 
-                <div class="form-group">
-                    <label class="form-label">Translated Ticket</label>
+  <div class="dl">
+    <span class="lbl">🔄 English Translation</span>
+    <div class="text-box" id="d-translated">—</div>
+  </div>
 
-                    <textarea
-                        class="form-control"
-                        rows="6">
-Hello, I cannot access my account.
-                    </textarea>
-                </div>
+  <div class="dl">
+    <span class="lbl">📋 Summary</span>
+    <div class="text-box" id="d-summary">—</div>
+  </div>
 
-                <button class="btn btn-primary">
-                    Approve Translation
-                </button>
+  <div class="dl">
+    <span class="lbl">💬 Suggested Response</span>
+    <div class="text-box response" id="d-suggested">—</div>
+  </div>
 
-                <button class="btn btn-danger">
-                    Reject
-                </button>
+  <div class="dl">
+    <span class="lbl">Submitted</span>
+    <span class="val" id="d-date">—</span>
+  </div>
 
-            </div>
-
-        </section>
-
-    </main>
-
+  <!-- Approve / Reject — only shown for pending tickets -->
+  <div class="drawer-actions" id="drawer-actions" style="display:none;">
+    <button class="btn-approve" id="d-approve-btn" onclick="drawerAction('approve')">✅ Approve</button>
+    <button class="btn-reject"  id="d-reject-btn"  onclick="drawerAction('reject')">❌ Reject</button>
+  </div>
 </div>
 
 <script src="../../assets/js/sidebar.js"></script>
+
+<script>
+  'use strict';
+
+  let currentPage  = 1;
+  let totalPages   = 1;
+  let activeTicket = null;
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!getToken()) { window.location.href = 'login.html'; return; }
+    fetchTickets();
+  });
+
+  // ── Fetch tickets ─────────────────────────────────────────────────────────
+  async function fetchTickets(page = 1) {
+    currentPage = page;
+
+    const status   = document.getElementById('f-status').value;
+    const language = document.getElementById('f-language').value;
+
+    const params = new URLSearchParams({ page, limit: 15 });
+    if (status)   params.set('status',   status);
+    if (language) params.set('language', language);
+
+    const tbody = document.getElementById('tickets-tbody');
+    tbody.innerHTML = '<tr class="state-row"><td colspan="8">Loading…</td></tr>';
+
+    try {
+      const data = await apiCall(`/tickets/history?${params}`);
+
+      document.getElementById('total-count').textContent = data.total;
+      totalPages = data.pages || 1;
+
+      renderTable(data.tickets);
+      renderPagination(data.page, data.pages);
+
+    } catch (err) {
+      tbody.innerHTML = `<tr class="state-row"><td colspan="8">⚠ ${err.message}</td></tr>`;
+    }
+  }
+
+  // ── Render table rows ─────────────────────────────────────────────────────
+  function renderTable(tickets) {
+    const tbody = document.getElementById('tickets-tbody');
+
+    if (!tickets.length) {
+      tbody.innerHTML = '<tr class="state-row"><td colspan="8">No tickets found.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = tickets.map(t => `
+      <tr class="clickable" onclick="openDrawer(${JSON.stringify(t).replace(/"/g,'&quot;')})">
+        <td style="color:#94a3b8; font-size:.82rem;">#${t.id}</td>
+        <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          ${escHtml(t.subject || '—')}
+        </td>
+        <td><span class="badge b-lang">${(t.source_language || '—').toUpperCase()}</span></td>
+        <td style="font-size:.85rem;">${escHtml(t.category || '—')}</td>
+        <td><span class="badge ${priorityClass(t.priority)}">${t.priority || '—'}</span></td>
+        <td style="font-size:.85rem;">${escHtml(t.sentiment || '—')}</td>
+        <td><span class="badge ${statusClass(t.status)}">${capitalise(t.status || '—')}</span></td>
+        <td style="font-size:.8rem; color:#64748b;">${formatDate(t.created_at)}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ── Pagination ────────────────────────────────────────────────────────────
+  function renderPagination(page, pages) {
+    const el = document.getElementById('pagination');
+    if (pages <= 1) { el.innerHTML = ''; return; }
+
+    let html = `<button class="page-btn" ${page===1?'disabled':''} onclick="fetchTickets(${page-1})">‹ Prev</button>`;
+
+    for (let i = 1; i <= pages; i++) {
+      if (pages > 7 && Math.abs(i - page) > 2 && i !== 1 && i !== pages) {
+        if (i === 2 || i === pages - 1) html += `<span style="padding:0 4px;color:#94a3b8;">…</span>`;
+        continue;
+      }
+      html += `<button class="page-btn ${i===page?'active':''}" onclick="fetchTickets(${i})">${i}</button>`;
+    }
+
+    html += `<button class="page-btn" ${page===pages?'disabled':''} onclick="fetchTickets(${page+1})">Next ›</button>`;
+    el.innerHTML = html;
+  }
+
+  // ── Filters ───────────────────────────────────────────────────────────────
+  function applyFilters() { fetchTickets(1); }
+  function resetFilters() {
+    document.getElementById('f-status').value   = '';
+    document.getElementById('f-language').value = '';
+    fetchTickets(1);
+  }
+
+  // ── Detail drawer ─────────────────────────────────────────────────────────
+  function openDrawer(ticket) {
+    // ticket may be a string (from onclick attr) or object
+    const t = typeof ticket === 'string' ? JSON.parse(ticket) : ticket;
+    activeTicket = t;
+
+    document.getElementById('d-title').textContent    = `Ticket #${t.id} — ${escHtml(t.subject || '')}`;
+    document.getElementById('d-lang').textContent     = (t.source_language || '—').toUpperCase();
+    document.getElementById('d-category').textContent = t.category  || '—';
+    document.getElementById('d-original').textContent  = t.original_message   || '—';
+    document.getElementById('d-translated').textContent = t.translated_message || '—';
+    document.getElementById('d-summary').textContent  = t.summary   || '—';
+    document.getElementById('d-suggested').textContent = t.suggested_response || '—';
+    document.getElementById('d-date').textContent     = formatDate(t.created_at);
+
+    // Priority badge
+    const priEl = document.getElementById('d-priority');
+    priEl.textContent = t.priority || '—';
+    priEl.className   = `badge ${priorityClass(t.priority)}`;
+
+    // Sentiment badge
+    const senEl = document.getElementById('d-sentiment');
+    senEl.textContent = t.sentiment || '—';
+    senEl.className   = 'badge b-lang';
+
+    // Status badge
+    const stEl = document.getElementById('d-status');
+    stEl.textContent = capitalise(t.status || '—');
+    stEl.className   = `badge ${statusClass(t.status)}`;
+
+    // Show approve/reject only for pending tickets
+    document.getElementById('drawer-actions').style.display =
+      t.status === 'pending' ? 'flex' : 'none';
+
+    // Open
+    document.getElementById('detail-drawer').classList.add('open');
+    document.getElementById('drawer-overlay').classList.add('open');
+  }
+
+  function closeDrawer() {
+    document.getElementById('detail-drawer').classList.remove('open');
+    document.getElementById('drawer-overlay').classList.remove('open');
+    activeTicket = null;
+  }
+
+  // ── Approve / Reject from drawer ──────────────────────────────────────────
+  async function drawerAction(action) {
+    if (!activeTicket) return;
+    const id = activeTicket.id;
+    const approveBtn = document.getElementById('d-approve-btn');
+    const rejectBtn  = document.getElementById('d-reject-btn');
+    approveBtn.disabled = true; rejectBtn.disabled = true;
+
+    try {
+      await apiCall(`/tickets/${id}/${action}`, { method: 'POST' });
+      showAlert(`Ticket #${id} ${action}d!`, action === 'approve' ? 'success' : 'error');
+      closeDrawer();
+      fetchTickets(currentPage);   // refresh table
+    } catch (err) {
+      showAlert(err.message, 'error');
+      approveBtn.disabled = false; rejectBtn.disabled = false;
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function capitalise(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('en-GB', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function statusClass(s) {
+    return { pending: 'b-pending', approved: 'b-approved', rejected: 'b-rejected' }[s] || 'b-pending';
+  }
+
+  function priorityClass(p) {
+    return { Critical: 'b-critical', High: 'b-high', Medium: 'b-medium', Low: 'b-low' }[p] || 'b-medium';
+  }
+</script>
 
 </body>
 </html>
