@@ -9,6 +9,56 @@
 <link rel="stylesheet" href="../../assets/css/components/forms.css">
 <link rel="stylesheet" href="../../assets/css/components/cards.css">
 <link rel="stylesheet" href="../../assets/css/components/buttons.css">
+<style>
+  /* ── File upload zone ──────────────────────────────────────────── */
+  .upload-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 22px 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    background: #f8fafc;
+    position: relative;
+  }
+  .upload-zone:hover,
+  .upload-zone.dragover {
+    border-color: #2563EB;
+    background: #eff6ff;
+  }
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .upload-zone .upload-icon  { font-size: 1.8rem; margin-bottom: 6px; }
+  .upload-zone .upload-text  { font-size: .9rem; color: #64748b; }
+  .upload-zone .upload-hint  { font-size: .78rem; color: #94a3b8; margin-top: 4px; }
+  .file-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 9px 14px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    font-size: .88rem;
+    color: #166534;
+  }
+  .file-preview .remove-file {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #dc2626;
+    line-height: 1;
+  }
+</style>
 </head>
 
 <body>
@@ -27,41 +77,19 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Language</label>
-      <select class="form-control" id="ticket-language">
-
-        <!-- Indian Languages -->
-        <optgroup label="Indian Languages">
-          <option value="English">English</option>
-          <option value="Tamil">Tamil — தமிழ்</option>
-          <option value="Hindi">Hindi — हिन्दी</option>
-          <option value="Malayalam">Malayalam — മലയാളം</option>
-          <option value="Telugu">Telugu — తెలుగు</option>
-          <option value="Kannada">Kannada — ಕನ್ನಡ</option>
-          <option value="Bengali">Bengali — বাংলা</option>
-          <option value="Marathi">Marathi — मराठी</option>
-          <option value="Gujarati">Gujarati — ગુજરાતી</option>
-          <option value="Punjabi">Punjabi — ਪੰਜਾਬੀ</option>
-          <option value="Urdu">Urdu — اردو</option>
-          <option value="Odia">Odia — ଓଡ଼ିଆ</option>
-        </optgroup>
-
-        <!-- International Languages -->
-        <optgroup label="International Languages">
-          <option value="French">French — Français</option>
-          <option value="German">German — Deutsch</option>
-          <option value="Spanish">Spanish — Español</option>
-          <option value="Arabic">Arabic — العربية</option>
-          <option value="Chinese">Chinese — 中文</option>
-          <option value="Japanese">Japanese — 日本語</option>
-          <option value="Korean">Korean — 한국어</option>
-          <option value="Portuguese">Portuguese — Português</option>
-          <option value="Russian">Russian — Русский</option>
-          <option value="Italian">Italian — Italiano</option>
-          <option value="Turkish">Turkish — Türkçe</option>
-        </optgroup>
-
-      </select>
+      <label class="form-label">Attachment <span style="color:#94a3b8; font-weight:400;">(optional)</span></label>
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="ticket-attachment"
+               accept=".txt,.pdf,.doc,.docx,.png,.jpg,.jpeg,.gif,.webp">
+        <div class="upload-icon">📎</div>
+        <div class="upload-text">Click to upload or drag &amp; drop a file</div>
+        <div class="upload-hint">Supported: TXT, PDF, DOC, DOCX, PNG, JPG, GIF, WEBP</div>
+      </div>
+      <div id="file-preview" style="display:none;" class="file-preview">
+        <span>📄</span>
+        <span id="file-name"></span>
+        <button class="remove-file" onclick="removeFile()" title="Remove file">✕</button>
+      </div>
     </div>
 
     <div class="form-group">

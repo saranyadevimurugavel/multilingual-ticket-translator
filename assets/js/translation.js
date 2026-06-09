@@ -2,7 +2,9 @@
  * translation.js
  * ==============
  * Handles pages/client/submit-ticket.html
- *   - Collects Subject, Language (dropdown), Message (textarea)
+ *   - Collects Subject, optional file attachment, and Message (textarea)
+ *   - Language is AUTO-DETECTED by the backend — no dropdown needed
+ *   - If a file is attached, its text content is appended to the message
  *   - Calls POST /api/tickets/submit
  *   - Displays the full AI analysis result inline
  *
@@ -28,19 +30,47 @@ document.addEventListener('DOMContentLoaded', () => {
 // SUBMIT TICKET PAGE
 // ══════════════════════════════════════════════════════════════════════════════
 function initSubmitPage() {
-  const submitBtn = document.querySelector('.btn-primary');
+  const submitBtn = document.getElementById('submit-ticket-btn');
   if (!submitBtn) return;
 
+  // ── Drag-and-drop support ────────────────────────────────────────────────
+  const zone = document.getElementById('upload-zone');
+  if (zone) {
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      const file = e.dataTransfer?.files?.[0];
+      if (file) setAttachment(file);
+    });
+  }
+
+  // ── File input change ────────────────────────────────────────────────────
+  const fileInput = document.getElementById('ticket-attachment');
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (file) setAttachment(file);
+    });
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
   submitBtn.addEventListener('click', async () => {
 
-    // Read all three form fields
-    const inputs   = document.querySelectorAll('.form-control');
-    const subject  = inputs[0]?.value.trim();
-    const language = inputs[1]?.value;          // <select> value
-    const message  = inputs[2]?.value.trim();   // <textarea>
+    const subject = (document.getElementById('ticket-subject')?.value || '').trim();
+    let   message = (document.getElementById('ticket-message')?.value  || '').trim();
 
-    if (!subject || !message) {
-      showAlert('Subject and Message are required.', 'error');
+    // If a text file was attached and message is empty, use the file content
+    const fileText = submitBtn.dataset.fileText || '';
+    if (!message && fileText) message = fileText;
+
+    if (!subject) {
+      showAlert('Subject is required.', 'error');
+      return;
+    }
+    if (!message) {
+      showAlert('Please enter a message or attach a text file.', 'error');
       return;
     }
 
@@ -51,9 +81,10 @@ function initSubmitPage() {
     document.getElementById('ticket-result')?.remove();
 
     try {
+      // Send subject + message only — language is auto-detected server-side
       const data = await apiCall('/tickets/submit', {
         method: 'POST',
-        body:   JSON.stringify({ subject, language, message }),
+        body:   JSON.stringify({ subject, message }),
       });
 
       const t = data.ticket;
@@ -61,8 +92,9 @@ function initSubmitPage() {
       showAlert('Ticket submitted successfully!', 'success');
 
       // Reset form
-      inputs[0].value = '';
-      inputs[2].value = '';
+      document.getElementById('ticket-subject').value = '';
+      document.getElementById('ticket-message').value = '';
+      removeFile();
 
     } catch (err) {
       showAlert(err.message || 'Submission failed.', 'error');
@@ -72,6 +104,57 @@ function initSubmitPage() {
     }
   });
 }
+
+// ── File attachment helpers ───────────────────────────────────────────────────
+
+/**
+ * Show file preview and, for text files, read content into the message box.
+ */
+function setAttachment(file) {
+  // Show preview
+  const preview  = document.getElementById('file-preview');
+  const nameEl   = document.getElementById('file-name');
+  const submitBtn = document.getElementById('submit-ticket-btn');
+  if (preview && nameEl) {
+    nameEl.textContent = `${file.name} (${formatFileSize(file.size)})`;
+    preview.style.display = 'flex';
+  }
+
+  // For plain text files — read content and pre-fill the message textarea
+  const isText = file.type === 'text/plain' || file.name.endsWith('.txt');
+  if (isText) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const content = (e.target.result || '').trim();
+      const msgBox  = document.getElementById('ticket-message');
+      // Only pre-fill if message is currently empty
+      if (msgBox && !msgBox.value.trim()) {
+        msgBox.value = content;
+      }
+      // Store for fallback use in submit handler
+      if (submitBtn) submitBtn.dataset.fileText = content;
+    };
+    reader.readAsText(file);
+  }
+}
+
+function removeFile() {
+  const fileInput = document.getElementById('ticket-attachment');
+  const preview   = document.getElementById('file-preview');
+  const submitBtn = document.getElementById('submit-ticket-btn');
+  if (fileInput)  fileInput.value = '';
+  if (preview)    preview.style.display = 'none';
+  if (submitBtn)  delete submitBtn.dataset.fileText;
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024)       return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+// ── Make removeFile globally accessible (called from HTML onclick) ────────────
+window.removeFile = removeFile;
 
 /**
  * Renders the AI analysis result card below the submit form.
@@ -113,19 +196,19 @@ function renderTicketResult(t) {
     <div class="result-row">
       <div>
         <span class="result-label">Detected Language</span>
-        <span class="badge" style="background:#0f172a">${t.source_language.toUpperCase()}</span>
+        <span class="badge" style="background:#0f172a">${(t.source_language || '—').toUpperCase()}</span>
       </div>
       <div>
         <span class="result-label">Category</span>
-        <span class="badge" style="background:#0284c7">${t.category}</span>
+        <span class="badge" style="background:#0284c7">${t.category || '—'}</span>
       </div>
       <div>
         <span class="result-label">Priority</span>
-        <span class="badge" style="background:${priorityColors[t.priority] || '#64748b'}">${t.priority}</span>
+        <span class="badge" style="background:${priorityColors[t.priority] || '#64748b'}">${t.priority || '—'}</span>
       </div>
       <div>
         <span class="result-label">Sentiment</span>
-        <span class="badge" style="background:${sentimentColors[t.sentiment] || '#64748b'}">${t.sentiment}</span>
+        <span class="badge" style="background:${sentimentColors[t.sentiment] || '#64748b'}">${t.sentiment || '—'}</span>
       </div>
       <div>
         <span class="result-label">AI Confidence</span>
@@ -144,8 +227,8 @@ function renderTicketResult(t) {
   `;
 
   // Insert after the submit card
-  const card_wrapper = document.querySelector('.card');
-  card_wrapper.insertAdjacentElement('afterend', card);
+  const cardWrapper = document.querySelector('.card');
+  cardWrapper.insertAdjacentElement('afterend', card);
   card.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -180,27 +263,22 @@ async function loadPendingTicket() {
     const t    = data.ticket;
 
     if (!t) {
-      // No pending tickets — show empty state
       const panels = document.querySelectorAll('.translation-text');
       panels.forEach(p => { p.value = 'No pending tickets.'; });
       return;
     }
 
-    // Populate both translation panels
     const panels = document.querySelectorAll('.translation-text');
     if (panels[0]) panels[0].value = t.original_message;
     if (panels[1]) panels[1].value = t.translated_message;
 
-    // Update language badges
     const badges = document.querySelectorAll('.language-badge');
     if (badges[0]) badges[0].textContent = (t.source_language || 'Unknown').toUpperCase();
     if (badges[1]) badges[1].textContent = 'English';
 
-    // Confidence score
     const conf = document.querySelector('.confidence-score');
     if (conf) conf.textContent = `AI Confidence: ${t.confidence || 95}%`;
 
-    // Store ticket ID on a hidden element for the approve/reject handlers
     let idEl = document.getElementById('tc-ticket-id');
     if (!idEl) {
       idEl = document.createElement('span');
@@ -219,7 +297,6 @@ async function handleAction(ticketId, action) {
   try {
     await apiCall(`/tickets/${ticketId}/${action}`, { method: 'POST' });
     showAlert(`Ticket #${ticketId} ${action}d!`, 'success');
-    // Load next pending ticket
     setTimeout(loadPendingTicket, 800);
   } catch (err) {
     showAlert(err.message, 'error');
