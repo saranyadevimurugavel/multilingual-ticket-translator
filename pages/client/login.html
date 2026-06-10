@@ -359,17 +359,15 @@
         });
 
         showMsg('register-msg',
-          `Account created! Welcome, ${data.user.name}. Redirecting to login…`,
+          `Account created! Welcome, ${data.user.name}. Redirecting…`,
           'success'
         );
 
-        // Auto-fill login form and switch to login tab
+        // Token is already returned by /auth/register — log in directly
+        saveAuth(data.token, data.user);
         setTimeout(() => {
-          document.getElementById('login-email').value    = email;
-          document.getElementById('login-password').value = password;
-          switchTab('login');
-          showMsg('login-msg', 'Account created! You can now log in.', 'success');
-        }, 1200);
+          window.location.href = 'submit-ticket.html';
+        }, 900);
 
       } catch (err) {
         const msg = err.message.includes('409') || err.message.toLowerCase().includes('already')
