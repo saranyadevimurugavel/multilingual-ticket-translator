@@ -96,6 +96,11 @@ function initSubmitPage() {
       document.getElementById('ticket-message').value = '';
       removeFile();
 
+      // Switch to My Tickets tab and refresh history
+      if (typeof window.onTicketSubmitted === 'function') {
+        window.onTicketSubmitted();
+      }
+
     } catch (err) {
       showAlert(err.message || 'Submission failed.', 'error');
     } finally {

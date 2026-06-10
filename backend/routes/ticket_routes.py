@@ -31,6 +31,7 @@ ticket_bp = Blueprint('tickets', __name__)
 
 # ── Submit ticket (client page) ───────────────────────────────────────────────
 @ticket_bp.route('/submit', methods=['POST'])
+@login_required
 def submit_ticket():
     """
     Called by: pages/client/submit-ticket.html → Submit Ticket button
@@ -76,7 +77,7 @@ def submit_ticket():
     # Run the full AI pipeline
     result = process_ticket(subject, message, hint_language=language or None)
 
-    # Persist
+    # Persist — record which user submitted this ticket
     ticket = Ticket(
         subject            = subject,
         original_message   = message,
@@ -88,6 +89,7 @@ def submit_ticket():
         summary            = result['summary'],
         suggested_response = result['suggested_response'],
         status             = 'pending',
+        submitted_by       = g.current_user.id,
     )
     db.session.add(ticket)
     db.session.commit()
@@ -97,6 +99,33 @@ def submit_ticket():
     response_data['confidence']    = result['confidence']
 
     return jsonify({'success': True, 'ticket': response_data}), 201
+
+
+# ── Client's own ticket history ───────────────────────────────────────────────
+@ticket_bp.route('/my', methods=['GET'])
+@login_required
+def my_tickets():
+    """
+    Called by: pages/client/submit-ticket.html — My Tickets tab
+    Returns tickets submitted by the currently logged-in client.
+
+    Response 200:
+        {
+          "success": true,
+          "tickets": [...],
+          "total": 5
+        }
+    """
+    tickets = (Ticket.query
+               .filter_by(submitted_by=g.current_user.id)
+               .order_by(Ticket.created_at.desc())
+               .all())
+
+    return jsonify({
+        'success': True,
+        'tickets': [t.to_dict() for t in tickets],
+        'total':   len(tickets),
+    }), 200
 
 
 # ── Recent tickets (dashboard table) ─────────────────────────────────────────
