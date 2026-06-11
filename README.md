@@ -5,6 +5,7 @@ An AI-powered full-stack customer support platform that accepts tickets in any l
 ---
 
 ## 🚀 Live Demo
+ https://saranyadevimurugavel.github.io/multilingual-ticket-translator/
 
 **Frontend:** https://saranyadevimurugavel.github.io/multilingual-ticket-translator/
 
